@@ -63,6 +63,8 @@ button {
     color: white; /* Textfarbe */
     width: 100%; /* Volle Breite */
     margin-bottom: 15px; /* Abstand */
+    font-weight: bold;
+    font-size: 16px;
 }
 
 .add-btn:hover {
@@ -75,6 +77,8 @@ button {
     color: white;
     width: 100%;
     margin-top: 15px;
+    font-weight: bold;
+    font-size: 16px;
 }
 
 .random-btn:hover {
@@ -117,7 +121,7 @@ ul {
     width: 20px;    /* Quadratisch */
     height: 20px;   /* Quadratisch */
     padding: 0;     /* Kein Innenabstand, damit Text zentriert */                  
-    font-size: 10px; /* Kleine Schrift, damit es in den Button passt */
+    font-size: 16px; /* Kleine Schrift, damit es in den Button passt */
     line-height: 1; /* Zeilenhöhe anpassen, damit Text vertikal zentriert ist */
     border-radius: 50%; /* Runde Form */
     display: flex;              /* ← macht echtes Zentrieren */
@@ -129,11 +133,38 @@ ul {
     background: darkred; /* Hover-Effekt */
 }
 
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.letter-heading {
+    margin-top: 10px;
+}
+
 /* Zufallsergebnis */
 #result {
-    font-size: 20px; /* Große Schrift */
+    font-size: 16px; /* Große Schrift */
     font-weight: bold;
     margin-top: 15px;
+}
+
+#foodList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
 }
 
 </style>
@@ -149,7 +180,9 @@ ul {
 
 <button class="add-btn" onclick="addFood()">Hinzufügen</button> <!-- Button ruft addFood() auf -->
 
-<ul id="foodList"></ul> <!-- Hier wird die Liste dynamisch eingefügt -->
+<input type="text" id="searchInput" placeholder="Gericht suchen...">    <!-- Suchfeld unterhalb des "Hinzufügen Buttons"-->
+
+<div id="foodList" class="grid-container"></div> <!-- Hier wird die Liste der Gerichte angezeigt -->
 
 <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button> <!-- Zufallsfunktion -->
 
@@ -186,6 +219,7 @@ const db = getFirestore(app); // Firestore Datenbank starten
 const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
 
 let foods = []; // Lokales Array für alle Gerichte
+let searchTerm = ""; // Aktueller Suchbegriff
 
 // Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
 onSnapshot(foodsCollection, (snapshot) => {
@@ -230,6 +264,11 @@ window.pickRandomFood = function() {
     document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
 };
 
+document.getElementById("searchInput").addEventListener("input", function(e) {
+    searchTerm = e.target.value.toLowerCase();
+    renderList();
+});
+
 // Liste neu aufbauen
 /* function renderList() {
 
@@ -252,34 +291,61 @@ window.pickRandomFood = function() {
 
 function renderList() {
 
-    const list = document.getElementById("foodList");
-    list.innerHTML = "";
+    const container = document.getElementById("foodList");
+    container.innerHTML = "";
 
-    let currentLetter = "";
+    const filteredFoods = foods.filter(food =>
+        food.name.toLowerCase().includes(searchTerm)
+    );
 
-    foods.forEach((food) => {
+    if (filteredFoods.length === 0) {
+        container.innerHTML = "<p>Kein Gericht gefunden 😕</p>";
+        return;
+    }
 
-        const firstLetter = food.name.charAt(0).toUpperCase();
+    // Liste halbieren
+    const middle = Math.ceil(filteredFoods.length / 2);
+    const leftFoods = filteredFoods.slice(0, middle);
+    const rightFoods = filteredFoods.slice(middle);
 
-        // Wenn neuer Buchstabe → Überschrift einfügen
-        if (firstLetter !== currentLetter) {
-            currentLetter = firstLetter;
+    const leftColumn = document.createElement("div");
+    leftColumn.className = "column";
 
-            const letterLi = document.createElement("li");
-            letterLi.innerHTML = `<strong>${currentLetter}</strong><hr>`;
-            letterLi.style.breakInside = "avoid";
-            list.appendChild(letterLi);
-        }
+    const rightColumn = document.createElement("div");
+    rightColumn.className = "column";
 
-        const li = document.createElement("li");
-        li.className = "food-item";
-        li.innerHTML = `
-            ${food.name}
-            <button class="remove-btn" onclick="removeFood('${food.id}')">X</button>
-        `;
+    function renderColumn(foodArray, column) {
 
-        list.appendChild(li);
-    });
+        let currentLetter = "";
+
+        foodArray.forEach(food => {
+
+            const firstLetter = food.name.charAt(0).toUpperCase();
+
+            if (firstLetter !== currentLetter) {
+                currentLetter = firstLetter;
+
+                const letter = document.createElement("div");
+                letter.innerHTML = `<strong>${currentLetter}</strong><hr>`;
+                column.appendChild(letter);
+            }
+
+            const item = document.createElement("div");
+            item.className = "food-item";
+            item.innerHTML = `
+                ${food.name}
+                <button class="remove-btn" onclick="removeFood('${food.id}')">X</button>
+            `;
+
+            column.appendChild(item);
+        });
+    }
+
+    renderColumn(leftFoods, leftColumn);
+    renderColumn(rightFoods, rightColumn);
+
+    container.appendChild(leftColumn);
+    container.appendChild(rightColumn);
 }
 
 </script>
