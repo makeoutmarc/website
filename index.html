@@ -117,82 +117,56 @@ button {
 
 <script>
 
-// Hier speichern wir alle Gerichte
-let foods = [];
+// Beim Start: gespeicherte Daten laden
+let foods = JSON.parse(localStorage.getItem("foods")) || [];
 
-// Diese Funktion wird ausgeführt, wenn man "Hinzufügen" klickt
+// Wenn Seite geladen ist → Liste anzeigen
+renderList();
+
 function addFood() {
-
-    // Zugriff auf das Eingabefeld
     const input = document.getElementById("foodInput");
-
-    // Text aus dem Feld holen und Leerzeichen entfernen
     const value = input.value.trim();
-
-    // Wenn nichts eingegeben wurde → abbrechen
     if (value === "") return;
 
-    // Neues Gericht zur Liste hinzufügen
     foods.push(value);
-
-    // Alphabetisch sortieren
     foods.sort();
 
-    // Eingabefeld leeren
-    input.value = "";
+    // Liste im Browser speichern
+    localStorage.setItem("foods", JSON.stringify(foods));
 
-    // Liste neu darstellen
+    input.value = "";
     renderList();
 }
 
-// Diese Funktion entfernt ein Gericht
 function removeFood(index) {
-
-    // splice entfernt 1 Element an der Position "index"
     foods.splice(index, 1);
 
-    // Liste neu anzeigen
+    // Aktualisierte Liste speichern
+    localStorage.setItem("foods", JSON.stringify(foods));
+
     renderList();
 }
 
-// Zufälliges Gericht auswählen
 function pickRandomFood() {
-
-    // Wenn Liste leer → abbrechen
     if (foods.length === 0) return;
 
-    // Zufällige Zahl zwischen 0 und foods.length - 1
     const randomIndex = Math.floor(Math.random() * foods.length);
-
-    // Ergebnis anzeigen
     document.getElementById("result").innerText = foods[randomIndex];
 }
 
-// Diese Funktion baut die komplette Liste neu auf
 function renderList() {
-
-    // Zugriff auf die HTML-Liste
     const list = document.getElementById("foodList");
-
-    // Vorherige Liste löschen
     list.innerHTML = "";
 
-    // Für jedes Gericht ein neues Listenelement erzeugen
     foods.forEach((food, index) => {
-
-        // Neues <li> Element erstellen
         const li = document.createElement("li");
-
-        // CSS Klasse setzen
         li.className = "food-item";
 
-        // HTML Inhalt des Listenelements
         li.innerHTML = `
             ${food}
             <button class="remove-btn" onclick="removeFood(${index})">−</button>
         `;
 
-        // Element zur Liste hinzufügen
         list.appendChild(li);
     });
 }
@@ -201,3 +175,4 @@ function renderList() {
 
 </body>
 </html>
+
