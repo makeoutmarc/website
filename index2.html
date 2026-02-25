@@ -1,0 +1,325 @@
+<!DOCTYPE html> <!-- HTML5 Dokumenttyp -->
+<html lang="de"> <!-- Sprache der Website = Deutsch -->
+<head>
+<meta charset="UTF-8"> <!-- Zeichencodierung -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile Optimierung -->
+<title>Essensideen</title> <!-- Titel im Browser-Tab -->
+
+<style>
+
+/* =========================
+   GRUNDLAYOUT
+========================= */
+
+body {
+    font-family: Arial, sans-serif; /* Schriftart */
+    background: #f5f7fa; /* Hintergrundfarbe */
+    display: flex; /* Flexbox aktivieren --> hilft beim zentrieren */
+    justify-content: center; /* Inhalt horizontal zentrieren */
+    padding: 40px 20px; /* Außenabstand */
+}
+
+/* Hauptcontainer */
+.container {
+    background: white; /* Weißer Kasten */
+    padding: 30px; /* Innenabstand */
+    width: 1000px; /* Feste Breite */
+    border-radius: 12px; /* Abgerundete Ecken */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Schatten */
+    text-align: center; /* Text zentrieren */
+}
+
+/* Überschrift */
+h1 {
+    margin-bottom: 20px; /* Abstand nach unten */
+}
+
+/* Eingabefeld */
+input {
+  width: 100%; /* Volle Breite */
+  padding: 10px; /* Innenabstand */
+  font-size: 16px; /* Schriftgröße */
+  border-radius: 6px; /* Runde Ecken */
+  border: 1px solid #ccc; /* Rahmen */
+  margin-bottom: 10px;/* Abstand nach unten */
+  box-sizing: border-box;   /* ← WICHTIG */
+}
+
+
+
+/* Buttons allgemein */
+button {
+    padding: 10px; /* Innenabstand */
+    border: none; /* Kein Rahmen */
+    border-radius: 6px; /* Runde Ecken */
+    cursor: pointer; /* Mauszeiger = Hand */
+    font-weight: bold; /* Fettschrift */
+    transition: 0.2s ease; /* Hover-Animation */
+}
+
+/* Hinzufügen Button */
+.add-btn {
+    background: #00b44b; /* Grün */
+    color: white; /* Textfarbe */
+    width: 100%; /* Volle Breite */
+    margin-bottom: 15px; /* Abstand */
+}
+
+.add-btn:hover {
+    background: #27ae60; /* Dunkleres Grün bei Hover */
+}
+
+/* Zufalls Button */
+.random-btn {
+    background: #3498db; /* Blau */
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.random-btn:hover {
+    background: #2980b9; /* Dunkler bei Hover */
+}
+
+/* Liste */
+/*ul {
+    list-style: none; /* Keine Punkte
+    padding: 0; /* Kein Einzug 
+    margin: 0;
+}*/
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    column-count: 2;       /* 2 Spalten */
+    column-gap: 40px;      /* Abstand */
+}
+
+/* Einzelnes Essen */
+.food-item {
+    background: #e4e4e4; /* Heller Hintergrund */
+    border: 1px solid #000000;  /* Dünner schwarzer Rahmen um die Kästchen drum rum */
+    padding: 10px;  /* Innenabstand */
+    margin-bottom: 8px; /* Abstand nach unten */
+    border-radius: 6px; /* Runde Ecken */
+    display: flex; /* Flexbox aktivieren */
+    justify-content: space-between; /* Abstand zwischen Text & Button */
+    align-items: center; /* Vertikal zentrieren */
+    break-inside: avoid;   /* Verhindert Umbruch mitten im Element */
+}
+
+/* Entfernen Button */
+.remove-btn {
+    background: rgb(240, 59, 59); /* Rot */
+    color: white; /* Textfarbe */
+    width: 20px;    /* Quadratisch */
+    height: 20px;   /* Quadratisch */
+    padding: 0;     /* Kein Innenabstand, damit Text zentriert */                  
+    font-size: 10px; /* Kleine Schrift, damit es in den Button passt */
+    line-height: 1; /* Zeilenhöhe anpassen, damit Text vertikal zentriert ist */
+    border-radius: 50%; /* Runde Form */
+    display: flex;              /* ← macht echtes Zentrieren */
+    justify-content: center; /* Horizontal zentrieren */
+    align-items: center; /* Vertikal zentrieren */
+}
+
+.fav-btn { /* Favoriten Button */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 6px;
+}
+
+.remove-btn:hover {
+    background: darkred; /* Hover-Effekt */
+}
+
+.food-item.favorite {
+    background: #fff8dc;
+}
+
+/* Zufallsergebnis */
+#result {
+    font-size: 20px; /* Große Schrift */
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container"> <!-- Haupt-Box -->
+
+<h1>Essensideen</h1> <!-- Titel -->
+
+<h2>⭐ Favoriten</h2> <!-- Neue Überschrift für Favoriten -->
+
+<input type="text" id="foodInput" placeholder="Neues Essen hinzufügen"> <!-- Eingabefeld -->
+
+<button class="add-btn" onclick="addFood()">Hinzufügen</button> <!-- Button ruft addFood() auf -->
+
+<ul id="foodList"></ul> <!-- Hier wird die Liste dynamisch eingefügt -->
+
+<button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button> <!-- Zufallsfunktion -->
+
+<div id="result"></div> <!-- Hier wird das Zufallsergebnis angezeigt -->
+
+</div>
+
+<script type="module"> 
+
+// Firebase Imports (Module aus Firebase laden)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { 
+    getFirestore,   // Firestore starten
+    collection,     // Collection auswählen
+    addDoc,         // Dokument hinzufügen
+    deleteDoc,      // Dokument löschen
+    doc,            // Dokument referenzieren
+    onSnapshot      // Echtzeit Listener
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+window.toggleFavorite = async function(id, currentValue) {
+    await updateDoc(doc(db, "foods", id), {
+        favorite: !currentValue
+    });
+};
+
+// Firebase Config (Verbindungsdaten zu deinem Projekt)
+const firebaseConfig = {
+    apiKey: "AIza...",
+    authDomain: "website-essen.firebaseapp.com",
+    projectId: "website-essen",
+    storageBucket: "website-essen.firebasestorage.app",
+    messagingSenderId: "95662683991",
+    appId: "1:95662683991:web:0bc5891b804db149647012"
+};
+
+// Firebase starten
+const app = initializeApp(firebaseConfig); // App initialisieren
+const db = getFirestore(app); // Firestore Datenbank starten
+const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
+
+let foods = []; // Lokales Array für alle Gerichte
+
+// Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
+onSnapshot(foodsCollection, (snapshot) => {
+
+    foods = []; // Array leeren
+
+    snapshot.forEach((docItem) => { // Jedes Dokument durchgehen
+        foods.push({
+            id: docItem.id,
+            name: docItem.data().name,
+            favorite: docItem.data().favorite || false
+            });
+    });
+
+    foods.sort((a,b)=> a.name.localeCompare(b.name));
+
+    renderList(); // Liste neu anzeigen
+});
+
+// Essen hinzufügen
+window.addFood = async function() {
+
+    const input = document.getElementById("foodInput"); // Eingabefeld holen
+    const value = input.value.trim(); // Text holen und Leerzeichen entfernen
+
+    if (value === "") return; // Wenn leer → abbrechen
+
+    await addDoc(foodsCollection, { 
+    name: value,
+    favorite: false
+}); // Neues Dokument speichern
+
+    input.value = ""; // Eingabefeld leeren
+};
+
+// Essen löschen
+window.removeFood = async function(id) {
+    await deleteDoc(doc(db, "foods", id)); // Dokument anhand ID löschen
+};
+
+// Zufallsgericht auswählen
+window.pickRandomFood = function() {
+
+    if (foods.length === 0) return; // Wenn leer → abbrechen
+
+    const randomIndex = Math.floor(Math.random() * foods.length); // Zufälliger Index
+    document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
+};
+
+// Liste neu aufbauen
+/* function renderList() {
+
+    const list = document.getElementById("foodList"); // UL holen
+    list.innerHTML = ""; // Alte Liste löschen
+
+    foods.forEach((food) => { // Jedes Essen durchgehen
+
+        const li = document.createElement("li"); // Neues Listenelement erstellen
+        li.className = "food-item"; // CSS Klasse setzen
+
+        li.innerHTML = `
+            ${food.name}
+            <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
+        `; // Inhalt setzen
+
+        list.appendChild(li); // Element zur Liste hinzufügen
+    });
+} */
+
+function renderList() {
+
+    const list = document.getElementById("foodList");
+    list.innerHTML = "";
+
+    let currentLetter = "";
+
+    foods.forEach((food) => {
+
+        const firstLetter = food.name.charAt(0).toUpperCase();
+
+        // Wenn neuer Buchstabe → Überschrift einfügen
+        if (firstLetter !== currentLetter) {
+            currentLetter = firstLetter;
+
+            const letterLi = document.createElement("li");
+            letterLi.innerHTML = `<strong>${currentLetter}</strong><hr>`;
+            letterLi.style.breakInside = "avoid";
+            list.appendChild(letterLi);
+        }
+
+        const li = document.createElement("li");
+            li.className = "food-item";
+
+            if (food.favorite) {
+                li.classList.add("favorite");
+            }
+
+            li.innerHTML = `
+                <span>
+                    <button class="fav-btn" onclick="toggleFavorite('${food.id}', ${food.favorite})">
+                        ${food.favorite ? "⭐" : "☆"}
+                    </button>
+                    ${food.name}
+                </span>
+                <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
+            `;
+
+        list.appendChild(li);
+    });
+}
+
+
+</script>
+
+</body>
+</html>
