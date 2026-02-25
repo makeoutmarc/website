@@ -22,11 +22,14 @@ body {
 /* Hauptcontainer */
 .container {
     background: white; /* Weißer Kasten */
-    padding: 30px; /* Innenabstand */
-    width: 1000px; /* Feste Breite */
-    border-radius: 12px; /* Abgerundete Ecken */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Schatten */
-    text-align: center; /* Text zentrieren */
+    padding: 30px;  /* Innenabstand */
+    width: 1820px;  /* Feste Breite */
+    border-radius: 12px;    /* Abgerundete Ecken */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
+
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
 }
 
 /* Überschrift */
@@ -57,6 +60,9 @@ button {
     transition: 0.2s ease; /* Hover-Animation */
 }
 
+
+
+
 /* Hinzufügen Button */
 .add-btn {
     background: #00b44b; /* Grün */
@@ -85,19 +91,54 @@ button {
     background: #2980b9; /* Dunkler bei Hover */
 }
 
+.container {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.right-section {
+    background: #dfdfdf;
+    padding-left: 30px;
+    border-radius: 6px;
+}
+
+.left-section {
+    padding-right: 30px;
+    border-right: 1px solid #e0e0e0; /* Dünne graue Linie */
+}
+
+.day-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    border: 1px solid #000000;   /* Rahmen */
+    padding: 8px 10px;           /* Innenabstand */
+    border-radius: 6px;          /* Runde Ecken */
+    /*Abstand zu rand rechts*/
+    margin-right: 30px;
+    margin-bottom: 10px; /* Abstand nach unten */
+}
+
+.day-row span {
+    flex: 1;
+}
+
+.day-row button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 14px;
+}
+
+
+
 /* Liste */
-/*ul {
-    list-style: none; /* Keine Punkte
-    padding: 0; /* Kein Einzug 
-    margin: 0;
-}*/
 
 ul {
     list-style: none;
     padding: 0;
     margin: 0;
 
-    column-count: 2;       /* 2 Spalten */
     column-gap: 40px;      /* Abstand */
 }
 
@@ -172,21 +213,33 @@ ul {
 
 <body>
 
-<div class="container"> <!-- Haupt-Box -->
+<div class="container">
 
-<h1>Essensideen</h1> <!-- Titel -->
+    <div class="left-section">
 
-<input type="text" id="foodInput" placeholder="Neues Essen hinzufügen"> <!-- Eingabefeld -->
+        <h1>Essensideen</h1>
 
-<button class="add-btn" onclick="addFood()">Hinzufügen</button> <!-- Button ruft addFood() auf -->
+        <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
+        <button class="add-btn" onclick="addFood()">Hinzufügen</button>
 
-<input type="text" id="searchInput" placeholder="Gericht suchen...">    <!-- Suchfeld unterhalb des "Hinzufügen Buttons"-->
+        <input type="text" id="searchInput" placeholder="Gericht suchen...">
 
-<div id="foodList" class="grid-container"></div> <!-- Hier wird die Liste der Gerichte angezeigt -->
+        <div id="foodList"></div>
 
-<button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button> <!-- Zufallsfunktion -->
+        <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
 
-<div id="result"></div> <!-- Hier wird das Zufallsergebnis angezeigt -->
+        <div id="result"></div>
+
+    </div>
+
+
+    <div class="right-section">
+
+        <h2>Wochenplan</h2>
+
+        <div id="weekPlan"></div>
+
+    </div>
 
 </div>
 
@@ -219,6 +272,15 @@ const db = getFirestore(app); // Firestore Datenbank starten
 const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
 
 let foods = []; // Lokales Array für alle Gerichte
+let weekPlan = {
+    Montag: null,
+    Dienstag: null,
+    Mittwoch: null,
+    Donnerstag: null,
+    Freitag: null,
+    Samstag: null,
+    Sonntag: null
+};
 let searchTerm = ""; // Aktueller Suchbegriff
 
 // Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
@@ -262,6 +324,30 @@ window.pickRandomFood = function() {
 
     const randomIndex = Math.floor(Math.random() * foods.length); // Zufälliger Index
     document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
+};
+
+window.assignRandom = function(day) {
+
+    if (foods.length === 0) return;
+
+    // Bereits vergebene Gerichte sammeln
+    const usedMeals = Object.values(weekPlan).filter(meal => meal !== null);
+
+    // Nur noch verfügbare Gerichte
+    const availableMeals = foods.filter(food =>
+        !usedMeals.includes(food.name)
+    );
+
+    if (availableMeals.length === 0) {
+        alert("Keine Gerichte mehr verfügbar 😅");
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableMeals.length);
+
+    weekPlan[day] = availableMeals[randomIndex].name;
+
+    renderWeekPlan();
 };
 
 document.getElementById("searchInput").addEventListener("input", function(e) {
@@ -348,6 +434,26 @@ function renderList() {
     container.appendChild(rightColumn);
 }
 
+function renderWeekPlan() {
+
+    const container = document.getElementById("weekPlan");
+    container.innerHTML = "";
+
+    Object.keys(weekPlan).forEach(day => {
+
+        const row = document.createElement("div");
+        row.className = "day-row";
+
+        row.innerHTML = `
+            <span><strong>${day}</strong></span>
+            <button onclick="assignRandom('${day}')">🎲</button>
+            <span>${weekPlan[day] || "-"}</span>
+        `;
+
+        container.appendChild(row);
+    });
+}
+renderWeekPlan();
 </script>
 
 </body>
