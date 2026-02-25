@@ -23,13 +23,9 @@ body {
 .container {
     background: white; /* Weißer Kasten */
     padding: 30px;  /* Innenabstand */
-    width: 1820px;  /* Feste Breite */
+    width: 1000px;  /* Feste Breite */
     border-radius: 12px;    /* Abgerundete Ecken */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
-
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 40px;
 }
 
 /* Überschrift */
@@ -44,7 +40,7 @@ input {
   font-size: 16px; /* Schriftgröße */
   border-radius: 6px; /* Runde Ecken */
   border: 1px solid #ccc; /* Rahmen */
-  margin-bottom: 10px;/* Abstand nach unten */
+  margin-bottom: 15px;/* Abstand nach unten */
   box-sizing: border-box;   /* ← WICHTIG */
 }
 
@@ -95,17 +91,6 @@ button {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-.right-section {
-    background: #dfdfdf;
-    padding-left: 30px;
-    border-radius: 6px;
-}
-
-.left-section {
-    padding-right: 30px;
-    border-right: 1px solid #e0e0e0; /* Dünne graue Linie */
-}
-
 .day-row {
     display: flex;
     align-items: center;
@@ -115,7 +100,6 @@ button {
     padding: 8px 10px;           /* Innenabstand */
     border-radius: 6px;          /* Runde Ecken */
     /*Abstand zu rand rechts*/
-    margin-right: 30px;
     margin-bottom: 10px; /* Abstand nach unten */
 }
 
@@ -128,6 +112,13 @@ button {
     height: 30px;
     padding: 0;
     font-size: 14px;
+}
+
+.section-divider {
+    margin: 30px 0;
+    border: none;
+    height: 1px;
+    background: rgba(0,0,0,0.15);
 }
 
 
@@ -176,7 +167,7 @@ ul {
 
 .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* 2 Spalten mit gleicher Breite */
     gap: 40px;
 }
 
@@ -187,7 +178,7 @@ ul {
 }
 
 .letter-heading {
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 /* Zufallsergebnis */
@@ -199,8 +190,12 @@ ul {
 
 #foodList {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* 2 Spalten mit gleicher Breite */
     gap: 40px;
+}
+
+#weekPlan {
+    margin-top: 15px;
 }
 
 .column {
@@ -215,31 +210,25 @@ ul {
 
 <div class="container">
 
-    <div class="left-section">
+    <h1>Essensideen</h1>
 
-        <h1>Essensideen</h1>
+    <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
+    <button class="add-btn" onclick="addFood()">Hinzufügen</button>
 
-        <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
-        <button class="add-btn" onclick="addFood()">Hinzufügen</button>
+    <input type="text" id="searchInput" placeholder="Gericht suchen...">
 
-        <input type="text" id="searchInput" placeholder="Gericht suchen...">
+    <div id="foodList"></div>
 
-        <div id="foodList"></div>
+    <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
 
-        <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
+    <div id="result"></div>
 
-        <div id="result"></div>
+    <!-- Trennlinie -->
+    <hr class="section-divider">
 
-    </div>
+    <h2>Wochenplan</h2>
 
-
-    <div class="right-section">
-
-        <h2>Wochenplan</h2>
-
-        <div id="weekPlan"></div>
-
-    </div>
+    <div id="weekPlan"></div>
 
 </div>
 
@@ -385,7 +374,7 @@ function renderList() {
     );
 
     if (filteredFoods.length === 0) {
-        container.innerHTML = "<p>Kein Gericht gefunden 😕</p>";
+        container.innerHTML = "<p>Noch keine Gerichte vorhanden!</p>";
         return;
     }
 
