@@ -13,8 +13,8 @@
 
 body {
     font-family: Arial, sans-serif; /* Schriftart */
-    background: #f2f2f2; /* Hintergrundfarbe */
-    display: flex; /* Flexbox aktivieren */
+    background: #dddddd; /* Hintergrundfarbe */
+    display: flex; /* Flexbox aktivieren --> hilft beim zentrieren */
     justify-content: center; /* Inhalt horizontal zentrieren */
     padding: 40px 20px; /* Außenabstand */
 }
@@ -36,13 +36,16 @@ h1 {
 
 /* Eingabefeld */
 input {
-    width: 100%; /* Volle Breite */
-    padding: 10px; /* Innenabstand */
-    font-size: 16px; /* Schriftgröße */
-    border-radius: 6px; /* Runde Ecken */
-    border: 1px solid #ccc; /* Rahmen */
-    margin-bottom: 10px; /* Abstand nach unten */
+  width: 100%; /* Volle Breite */
+  padding: 10px; /* Innenabstand */
+  font-size: 16px; /* Schriftgröße */
+  border-radius: 6px; /* Runde Ecken */
+  border: 1px solid #ccc; /* Rahmen */
+  margin-bottom: 10px;/* Abstand nach unten */
+  box-sizing: border-box;   /* ← WICHTIG */
 }
+
+
 
 /* Buttons allgemein */
 button {
@@ -79,21 +82,31 @@ button {
 }
 
 /* Liste */
-ul {
-    list-style: none; /* Keine Punkte */
-    padding: 0; /* Kein Einzug */
+/*ul {
+    list-style: none; /* Keine Punkte
+    padding: 0; /* Kein Einzug 
     margin: 0;
+}*/
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    column-count: 2;       /* 2 Spalten */
+    column-gap: 40px;      /* Abstand */
 }
 
 /* Einzelnes Essen */
 .food-item {
-    background: #f9f9f9; /* Heller Hintergrund */
+    background: #d1fff3; /* Heller Hintergrund */
     padding: 10px;
     margin-bottom: 8px;
     border-radius: 6px;
     display: flex; /* Flexbox */
     justify-content: space-between; /* Abstand zwischen Text & Button */
     align-items: center; /* Vertikal zentrieren */
+    break-inside: avoid;   /* Verhindert Umbruch mitten im Element */
 }
 
 /* Entfernen Button */
@@ -123,7 +136,7 @@ ul {
 
 <div class="container"> <!-- Haupt-Box -->
 
-<h1>Vorschläge fürs Essen 🍝</h1> <!-- Titel -->
+<h1>Essensideen</h1> <!-- Titel -->
 
 <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen"> <!-- Eingabefeld -->
 
@@ -211,7 +224,7 @@ window.pickRandomFood = function() {
 };
 
 // Liste neu aufbauen
-function renderList() {
+/* function renderList() {
 
     const list = document.getElementById("foodList"); // UL holen
     list.innerHTML = ""; // Alte Liste löschen
@@ -227,6 +240,38 @@ function renderList() {
         `; // Inhalt setzen
 
         list.appendChild(li); // Element zur Liste hinzufügen
+    });
+} */
+
+function renderList() {
+
+    const list = document.getElementById("foodList");
+    list.innerHTML = "";
+
+    let currentLetter = "";
+
+    foods.forEach((food) => {
+
+        const firstLetter = food.name.charAt(0).toUpperCase();
+
+        // Wenn neuer Buchstabe → Überschrift einfügen
+        if (firstLetter !== currentLetter) {
+            currentLetter = firstLetter;
+
+            const letterLi = document.createElement("li");
+            letterLi.innerHTML = `<strong>${currentLetter}</strong><hr>`;
+            letterLi.style.breakInside = "avoid";
+            list.appendChild(letterLi);
+        }
+
+        const li = document.createElement("li");
+        li.className = "food-item";
+        li.innerHTML = `
+            ${food.name}
+            <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
+        `;
+
+        list.appendChild(li);
     });
 }
 
