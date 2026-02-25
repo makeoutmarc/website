@@ -125,20 +125,8 @@ ul {
     align-items: center; /* Vertikal zentrieren */
 }
 
-.fav-btn { /* Favoriten Button */
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    margin-right: 6px;
-}
-
 .remove-btn:hover {
     background: darkred; /* Hover-Effekt */
-}
-
-.food-item.favorite {
-    background: #fff8dc;
 }
 
 /* Zufallsergebnis */
@@ -156,8 +144,6 @@ ul {
 <div class="container"> <!-- Haupt-Box -->
 
 <h1>Essensideen</h1> <!-- Titel -->
-
-<h2>⭐ Favoriten</h2> <!-- Neue Überschrift für Favoriten -->
 
 <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen"> <!-- Eingabefeld -->
 
@@ -183,13 +169,6 @@ import {
     doc,            // Dokument referenzieren
     onSnapshot      // Echtzeit Listener
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-import { updateDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-window.toggleFavorite = async function(id, currentValue) {
-    await updateDoc(doc(db, "foods", id), {
-        favorite: !currentValue
-    });
-};
 
 // Firebase Config (Verbindungsdaten zu deinem Projekt)
 const firebaseConfig = {
@@ -215,14 +194,12 @@ onSnapshot(foodsCollection, (snapshot) => {
 
     snapshot.forEach((docItem) => { // Jedes Dokument durchgehen
         foods.push({
-            id: docItem.id,
-            name: docItem.data().name,
-            favorite: docItem.data().favorite || false
-            });
+            id: docItem.id, // Dokument-ID speichern
+            name: docItem.data().name // Name speichern
+        });
     });
 
-    foods.sort((a,b)=> a.name.localeCompare(b.name));
-
+    foods.sort((a,b)=> a.name.localeCompare(b.name)); // Alphabetisch sortieren
     renderList(); // Liste neu anzeigen
 });
 
@@ -234,10 +211,7 @@ window.addFood = async function() {
 
     if (value === "") return; // Wenn leer → abbrechen
 
-    await addDoc(foodsCollection, { 
-    name: value,
-    favorite: false
-}); // Neues Dokument speichern
+    await addDoc(foodsCollection, { name: value }); // Neues Dokument speichern
 
     input.value = ""; // Eingabefeld leeren
 };
@@ -298,26 +272,15 @@ function renderList() {
         }
 
         const li = document.createElement("li");
-            li.className = "food-item";
-
-            if (food.favorite) {
-                li.classList.add("favorite");
-            }
-
-            li.innerHTML = `
-                <span>
-                    <button class="fav-btn" onclick="toggleFavorite('${food.id}', ${food.favorite})">
-                        ${food.favorite ? "⭐" : "☆"}
-                    </button>
-                    ${food.name}
-                </span>
-                <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
-            `;
+        li.className = "food-item";
+        li.innerHTML = `
+            ${food.name}
+            <button class="remove-btn" onclick="removeFood('${food.id}')">X</button>
+        `;
 
         list.appendChild(li);
     });
 }
-
 
 </script>
 
