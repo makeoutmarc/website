@@ -96,7 +96,7 @@ onSnapshot(foodsCollection, (snapshot) => {
 
 
 // ➕ Essen hinzufügen (Website → Cloud)
-async function addFood() {
+window.addFood = async function() {
     const input = document.getElementById("foodInput");
     const value = input.value.trim();
     if (value === "") return;
@@ -110,13 +110,13 @@ async function addFood() {
 
 
 // ❌ Essen löschen (Cloud)
-async function removeFood(id) {
+window.removeFood = async function(id) {
     await deleteDoc(doc(db, "foods", id));
 }
 
 
 // 🎲 Zufallsgericht
-function pickRandomFood() {
+window.pickRandomFood = function() {
     if (foods.length === 0) return;
 
     const randomIndex = Math.floor(Math.random() * foods.length);
@@ -146,3 +146,4 @@ function renderList() {
 
 </body>
 </html>
+
