@@ -203,6 +203,16 @@ ul {
     flex-direction: column;
 }
 
+.reset-btn {
+    background: #f39c12;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.reset-btn:hover {
+    background: #e67e22;
+}
+
 </style>
 </head>
 
@@ -227,6 +237,8 @@ ul {
     <hr class="section-divider">
 
     <h2>Wochenplan</h2>
+    
+    <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
 
     <div id="weekPlan"></div>
 
@@ -237,12 +249,14 @@ ul {
 // Firebase Imports (Module aus Firebase laden)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { 
-    getFirestore,   // Firestore starten
-    collection,     // Collection auswählen
-    addDoc,         // Dokument hinzufügen
-    deleteDoc,      // Dokument löschen
-    doc,            // Dokument referenzieren
-    onSnapshot      // Echtzeit Listener
+    getFirestore,
+    collection,
+    addDoc,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    setDoc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 // Firebase Config (Verbindungsdaten zu deinem Projekt)
@@ -259,6 +273,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig); // App initialisieren
 const db = getFirestore(app); // Firestore Datenbank starten
 const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
+const weekPlanRef = doc(db, "settings", "weekPlan");
 
 let foods = []; // Lokales Array für alle Gerichte
 let weekPlan = {
@@ -270,6 +285,17 @@ let weekPlan = {
     Samstag: null,
     Sonntag: null
 };
+
+const daysOrder = [
+    "Montag",
+    "Dienstag",
+    "Mittwoch",
+    "Donnerstag",
+    "Freitag",
+    "Samstag",
+    "Sonntag"
+];
+
 let searchTerm = ""; // Aktueller Suchbegriff
 
 // Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
@@ -315,7 +341,7 @@ window.pickRandomFood = function() {
     document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
 };
 
-window.assignRandom = function(day) {
+window.assignRandom = async function(day) {
 
     if (foods.length === 0) return;
 
@@ -335,6 +361,25 @@ window.assignRandom = function(day) {
     const randomIndex = Math.floor(Math.random() * availableMeals.length);
 
     weekPlan[day] = availableMeals[randomIndex].name;
+
+        await setDoc(weekPlanRef, weekPlan);
+
+        renderWeekPlan();
+};
+
+window.resetWeekPlan = async function() {
+
+    weekPlan = {
+        Montag: null,
+        Dienstag: null,
+        Mittwoch: null,
+        Donnerstag: null,
+        Freitag: null,
+        Samstag: null,
+        Sonntag: null
+    };
+
+    await setDoc(weekPlanRef, weekPlan);
 
     renderWeekPlan();
 };
@@ -428,7 +473,7 @@ function renderWeekPlan() {
     const container = document.getElementById("weekPlan");
     container.innerHTML = "";
 
-    Object.keys(weekPlan).forEach(day => {
+    daysOrder.forEach(day => {
 
         const row = document.createElement("div");
         row.className = "day-row";
@@ -442,7 +487,17 @@ function renderWeekPlan() {
         container.appendChild(row);
     });
 }
-renderWeekPlan();
+async function loadWeekPlan() {
+
+    const docSnap = await getDoc(weekPlanRef);
+
+    if (docSnap.exists()) {
+        weekPlan = docSnap.data();
+    }
+
+    renderWeekPlan();
+}
+loadWeekPlan();
 </script>
 
 </body>
