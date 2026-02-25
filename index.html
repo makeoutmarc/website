@@ -1,63 +1,158 @@
-<!DOCTYPE html>
-<html lang="de">
+<!DOCTYPE html> <!-- HTML5 Dokumenttyp -->
+<html lang="de"> <!-- Sprache der Website = Deutsch -->
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Was kochen wir? 🍝</title>
+<meta charset="UTF-8"> <!-- Zeichencodierung -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile Optimierung -->
+<title>Essensideen</title> <!-- Titel im Browser-Tab -->
 
 <style>
+
+/* =========================
+   GRUNDLAYOUT
+========================= */
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    text-align: center;
-    padding: 20px;
+    font-family: Arial, sans-serif; /* Schriftart */
+    background: #f2f2f2; /* Hintergrundfarbe */
+    display: flex; /* Flexbox aktivieren */
+    justify-content: center; /* Inhalt horizontal zentrieren */
+    padding: 40px 20px; /* Außenabstand */
 }
-input { padding:10px; width:250px; }
-button { padding:10px; margin:5px; cursor:pointer; border:none; border-radius:5px; }
-.add-btn { background:green; color:white; }
-.random-btn { background:blue; color:white; }
-.remove-btn { background:red; color:white; border-radius:50%; width:25px; height:25px; }
+
+/* Hauptcontainer */
+.container {
+    background: white; /* Weißer Kasten */
+    padding: 30px; /* Innenabstand */
+    width: 350px; /* Feste Breite */
+    border-radius: 12px; /* Abgerundete Ecken */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* Schatten */
+    text-align: center; /* Text zentrieren */
+}
+
+/* Überschrift */
+h1 {
+    margin-bottom: 20px; /* Abstand nach unten */
+}
+
+/* Eingabefeld */
+input {
+    width: 100%; /* Volle Breite */
+    padding: 10px; /* Innenabstand */
+    font-size: 16px; /* Schriftgröße */
+    border-radius: 6px; /* Runde Ecken */
+    border: 1px solid #ccc; /* Rahmen */
+    margin-bottom: 10px; /* Abstand nach unten */
+}
+
+/* Buttons allgemein */
+button {
+    padding: 10px; /* Innenabstand */
+    border: none; /* Kein Rahmen */
+    border-radius: 6px; /* Runde Ecken */
+    cursor: pointer; /* Mauszeiger = Hand */
+    font-weight: bold; /* Fettschrift */
+    transition: 0.2s ease; /* Hover-Animation */
+}
+
+/* Hinzufügen Button */
+.add-btn {
+    background: #2ecc71; /* Grün */
+    color: white; /* Textfarbe */
+    width: 100%; /* Volle Breite */
+    margin-bottom: 15px; /* Abstand */
+}
+
+.add-btn:hover {
+    background: #27ae60; /* Dunkleres Grün bei Hover */
+}
+
+/* Zufalls Button */
+.random-btn {
+    background: #3498db; /* Blau */
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.random-btn:hover {
+    background: #2980b9; /* Dunkler bei Hover */
+}
+
+/* Liste */
+ul {
+    list-style: none; /* Keine Punkte */
+    padding: 0; /* Kein Einzug */
+    margin: 0;
+}
+
+/* Einzelnes Essen */
 .food-item {
-    background:white;
-    margin:5px auto;
-    padding:10px;
-    width:300px;
-    display:flex;
-    justify-content:space-between;
+    background: #f9f9f9; /* Heller Hintergrund */
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    display: flex; /* Flexbox */
+    justify-content: space-between; /* Abstand zwischen Text & Button */
+    align-items: center; /* Vertikal zentrieren */
 }
-#result { font-size:24px; font-weight:bold; margin-top:20px; }
+
+/* Entfernen Button */
+.remove-btn {
+    background: red;
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%; /* Rund */
+}
+
+.remove-btn:hover {
+    background: darkred; /* Hover-Effekt */
+}
+
+/* Zufallsergebnis */
+#result {
+    font-size: 22px; /* Große Schrift */
+    font-weight: bold;
+    margin-top: 15px;
+}
+
 </style>
 </head>
+
 <body>
 
-<h1>Was kochen wir? 🍝</h1>
+<div class="container"> <!-- Haupt-Box -->
 
-<input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
-<br>
-<button class="add-btn" onclick="addFood()">Hinzufügen</button>
+<h1>Vorschläge fürs Essen 🍝</h1> <!-- Titel -->
 
-<ul id="foodList"></ul>
+<input type="text" id="foodInput" placeholder="Neues Essen hinzufügen"> <!-- Eingabefeld -->
 
-<button class="random-btn" onclick="pickRandomFood()">🎲 Zufallsgericht wählen</button>
-<div id="result"></div>
+<button class="add-btn" onclick="addFood()">Hinzufügen</button> <!-- Button ruft addFood() auf -->
 
-<script type="module">
+<ul id="foodList"></ul> <!-- Hier wird die Liste dynamisch eingefügt -->
 
-// Firebase Module importieren
+<button class="random-btn" onclick="pickRandomFood()">🎲 Zufallsgericht wählen</button> <!-- Zufallsfunktion -->
+
+<div id="result"></div> <!-- Hier wird das Zufallsergebnis angezeigt -->
+
+</div>
+
+<script type="module"> 
+
+// Firebase Imports (Module aus Firebase laden)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    deleteDoc, 
-    doc,
-    onSnapshot 
+    getFirestore,   // Firestore starten
+    collection,     // Collection auswählen
+    addDoc,         // Dokument hinzufügen
+    deleteDoc,      // Dokument löschen
+    doc,            // Dokument referenzieren
+    onSnapshot      // Echtzeit Listener
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-
-// 🔥 Deine Firebase Konfiguration
+// Firebase Config (Verbindungsdaten zu deinem Projekt)
 const firebaseConfig = {
-    apiKey: "AIzaSyAZhSBG6zuhlw8nI9hRis8dhj8N0BU-BG4",
+    apiKey: "AIza...",
     authDomain: "website-essen.firebaseapp.com",
     projectId: "website-essen",
     storageBucket: "website-essen.firebasestorage.app",
@@ -65,80 +160,73 @@ const firebaseConfig = {
     appId: "1:95662683991:web:0bc5891b804db149647012"
 };
 
-
 // Firebase starten
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); // App initialisieren
+const db = getFirestore(app); // Firestore Datenbank starten
+const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
 
-// Firestore Datenbank starten
-const db = getFirestore(app);
+let foods = []; // Lokales Array für alle Gerichte
 
-// Collection "foods"
-const foodsCollection = collection(db, "foods");
-
-// Lokales Array
-let foods = [];
-
-
-// 🔄 Echtzeit Listener (Cloud → Website)
+// Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
 onSnapshot(foodsCollection, (snapshot) => {
-    foods = [];
 
-    snapshot.forEach((docItem) => {
+    foods = []; // Array leeren
+
+    snapshot.forEach((docItem) => { // Jedes Dokument durchgehen
         foods.push({
-            id: docItem.id,
-            name: docItem.data().name
+            id: docItem.id, // Dokument-ID speichern
+            name: docItem.data().name // Name speichern
         });
     });
 
-    foods.sort((a,b)=> a.name.localeCompare(b.name));
-    renderList();
+    foods.sort((a,b)=> a.name.localeCompare(b.name)); // Alphabetisch sortieren
+    renderList(); // Liste neu anzeigen
 });
 
-
-// ➕ Essen hinzufügen (Website → Cloud)
+// Essen hinzufügen
 window.addFood = async function() {
-    const input = document.getElementById("foodInput");
-    const value = input.value.trim();
-    if (value === "") return;
 
-    await addDoc(foodsCollection, {
-        name: value
-    });
+    const input = document.getElementById("foodInput"); // Eingabefeld holen
+    const value = input.value.trim(); // Text holen und Leerzeichen entfernen
 
-    input.value = "";
-}
+    if (value === "") return; // Wenn leer → abbrechen
 
+    await addDoc(foodsCollection, { name: value }); // Neues Dokument speichern
 
-// ❌ Essen löschen (Cloud)
+    input.value = ""; // Eingabefeld leeren
+};
+
+// Essen löschen
 window.removeFood = async function(id) {
-    await deleteDoc(doc(db, "foods", id));
-}
+    await deleteDoc(doc(db, "foods", id)); // Dokument anhand ID löschen
+};
 
-
-// 🎲 Zufallsgericht
+// Zufallsgericht auswählen
 window.pickRandomFood = function() {
-    if (foods.length === 0) return;
 
-    const randomIndex = Math.floor(Math.random() * foods.length);
-    document.getElementById("result").innerText = foods[randomIndex].name;
-}
+    if (foods.length === 0) return; // Wenn leer → abbrechen
 
+    const randomIndex = Math.floor(Math.random() * foods.length); // Zufälliger Index
+    document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
+};
 
-// 📋 Liste anzeigen
+// Liste neu aufbauen
 function renderList() {
-    const list = document.getElementById("foodList");
-    list.innerHTML = "";
 
-    foods.forEach((food) => {
-        const li = document.createElement("li");
-        li.className = "food-item";
+    const list = document.getElementById("foodList"); // UL holen
+    list.innerHTML = ""; // Alte Liste löschen
+
+    foods.forEach((food) => { // Jedes Essen durchgehen
+
+        const li = document.createElement("li"); // Neues Listenelement erstellen
+        li.className = "food-item"; // CSS Klasse setzen
 
         li.innerHTML = `
             ${food.name}
             <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
-        `;
+        `; // Inhalt setzen
 
-        list.appendChild(li);
+        list.appendChild(li); // Element zur Liste hinzufügen
     });
 }
 
@@ -146,4 +234,3 @@ function renderList() {
 
 </body>
 </html>
-
