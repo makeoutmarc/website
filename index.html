@@ -1,11 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Website Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Was kochen wir? 🍝</title>
+
+<style>
+
+/* Grundlayout der Seite */
+body {
+    font-family: Arial, sans-serif; /* Schriftart */
+    background: #f4f4f4;            /* Hintergrundfarbe */
+    text-align: center;             /* Text zentrieren */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Überschrift Styling */
+h1 {
+    margin-bottom: 20px;
+}
+
+/* Eingabefeld */
+input {
+    padding: 10px;
+    width: 250px;
+    font-size: 16px;
+}
+
+/* Allgemeines Button Styling */
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+/* Grüner Hinzufügen Button */
+.add-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Blauer Zufalls Button */
+.random-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+/* Liste ohne Punkte */
+.food-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+/* Einzelnes Listenelement */
+.food-item {
+    background: white;
+    padding: 10px;
+    margin: 5px auto;
+    width: 300px;
+
+    /* Flex sorgt für horizontale Ausrichtung */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-radius: 5px;
+}
+
+/* Roter Entfernen Button */
+.remove-btn {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
+
+/* Zufallsergebnis Anzeige */
+#result {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+</style>
 </head>
-<body style="background:black; color:white; text-align:center; margin-top:100px;">
-  <h1>ES FUNKTIONIERT 🚀</h1>
-  <p>GitHub Pages läuft korrekt.</p>
+
+<body>
+
+<!-- Titel -->
+<h1>Was kochen wir? 🍝</h1>
+
+<!-- Eingabefeld -->
+<input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
+
+<br>
+
+<!-- Button ruft die Funktion addFood() auf -->
+<button class="add-btn" onclick="addFood()">Hinzufügen</button>
+
+<!-- Hier wird die Liste automatisch eingefügt -->
+<ul class="food-list" id="foodList"></ul>
+
+<!-- Button für Zufallsauswahl -->
+<button class="random-btn" onclick="pickRandomFood()">🎲 Zufallsgericht wählen</button>
+
+<!-- Hier wird das Zufallsergebnis angezeigt -->
+<div id="result"></div>
+
+<script>
+
+// Hier speichern wir alle Gerichte
+let foods = [];
+
+// Diese Funktion wird ausgeführt, wenn man "Hinzufügen" klickt
+function addFood() {
+
+    // Zugriff auf das Eingabefeld
+    const input = document.getElementById("foodInput");
+
+    // Text aus dem Feld holen und Leerzeichen entfernen
+    const value = input.value.trim();
+
+    // Wenn nichts eingegeben wurde → abbrechen
+    if (value === "") return;
+
+    // Neues Gericht zur Liste hinzufügen
+    foods.push(value);
+
+    // Alphabetisch sortieren
+    foods.sort();
+
+    // Eingabefeld leeren
+    input.value = "";
+
+    // Liste neu darstellen
+    renderList();
+}
+
+// Diese Funktion entfernt ein Gericht
+function removeFood(index) {
+
+    // splice entfernt 1 Element an der Position "index"
+    foods.splice(index, 1);
+
+    // Liste neu anzeigen
+    renderList();
+}
+
+// Zufälliges Gericht auswählen
+function pickRandomFood() {
+
+    // Wenn Liste leer → abbrechen
+    if (foods.length === 0) return;
+
+    // Zufällige Zahl zwischen 0 und foods.length - 1
+    const randomIndex = Math.floor(Math.random() * foods.length);
+
+    // Ergebnis anzeigen
+    document.getElementById("result").innerText = foods[randomIndex];
+}
+
+// Diese Funktion baut die komplette Liste neu auf
+function renderList() {
+
+    // Zugriff auf die HTML-Liste
+    const list = document.getElementById("foodList");
+
+    // Vorherige Liste löschen
+    list.innerHTML = "";
+
+    // Für jedes Gericht ein neues Listenelement erzeugen
+    foods.forEach((food, index) => {
+
+        // Neues <li> Element erstellen
+        const li = document.createElement("li");
+
+        // CSS Klasse setzen
+        li.className = "food-item";
+
+        // HTML Inhalt des Listenelements
+        li.innerHTML = `
+            ${food}
+            <button class="remove-btn" onclick="removeFood(${index})">−</button>
+        `;
+
+        // Element zur Liste hinzufügen
+        list.appendChild(li);
+    });
+}
+
+</script>
+
 </body>
 </html>
