@@ -81,6 +81,7 @@ button {
     margin-top: 15px;
     font-weight: bold;
     font-size: 16px;
+    margin-bottom: 15px;
 }
 
 .random-btn:hover {
@@ -213,6 +214,67 @@ ul {
     background: #e67e22;
 }
 
+/* ================= SHARE MODAL ================= */
+
+.share-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    
+}
+
+.share-box {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-top: 15px;
+}
+
+.share-tabs {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.active-tab {
+    font-weight: bold;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #f4b400;
+    display: inline-block;
+}
+
+.share-input-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    height: auto;
+}
+
+.copy-btn {
+    background: #f4b400;
+    color: black;
+    white-space: nowrap;
+}
+
+.copy-btn:hover {
+    background: #e2a800;
+}
+
+.close-btn {
+    margin-top: 15px;
+    background: #ccc;
+}
+
+.close-btn:hover {
+    background: #bbb;
+}
+
 </style>
 </head>
 
@@ -230,6 +292,27 @@ ul {
     <div id="foodList"></div>
 
     <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
+
+    <button onclick="sharePlan()">🔗 Plan teilen</button>
+
+    <div id="shareModal" class="share-modal">
+    <div class="share-box">
+
+        <div class="share-tabs">
+            <div class="active-tab">🔗 Link kopieren</div>
+        </div>
+
+        <p>Kopiere diesen Link und teile ihn mit anderen.</p>
+
+        <div class="share-input-row">
+            <input type="text" id="shareLinkInput" readonly>
+            <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
+        </div>
+
+        <button class="close-btn" onclick="closeShareModal()">Schließen</button>
+
+    </div>
+</div>
 
     <div id="result"></div>
 
@@ -272,8 +355,54 @@ const firebaseConfig = {
 // Firebase starten
 const app = initializeApp(firebaseConfig); // App initialisieren
 const db = getFirestore(app); // Firestore Datenbank starten
-const foodsCollection = collection(db, "foods"); // Referenz zur Collection "foods"
-const weekPlanRef = doc(db, "settings", "weekPlan");
+
+// ================= PLAN-ID LOGIK =================
+
+// ================= PLAN-ID LOGIK =================
+
+// URL Parameter lesen
+const urlParams = new URLSearchParams(window.location.search);
+let planId = urlParams.get("plan");
+
+// Wenn kein Plan existiert → erstmal null
+if (!planId) {
+    planId = null;
+}
+
+// Referenzen werden später gesetzt
+let planDocRef = null;
+let foodsCollection = null;
+let weekPlanRef = null;
+
+function initializePlan(id) {
+    planId = id;
+
+    planDocRef = doc(db, "plans", planId);
+    foodsCollection = collection(planDocRef, "foods");
+    weekPlanRef = doc(planDocRef, "meta", "weekPlan");
+
+    // Echtzeit Sync starten
+    onSnapshot(foodsCollection, (snapshot) => {
+        foods = [];
+
+        snapshot.forEach((docItem) => {
+            foods.push({
+                id: docItem.id,
+                name: docItem.data().name
+            });
+        });
+
+        foods.sort((a,b)=> a.name.localeCompare(b.name));
+        renderList();
+    });
+
+    loadWeekPlan();
+}
+
+// Wenn Plan in URL existiert → direkt initialisieren
+if (planId) {
+    initializePlan(planId);
+}
 
 let foods = []; // Lokales Array für alle Gerichte
 let weekPlan = {
@@ -298,38 +427,30 @@ const daysOrder = [
 
 let searchTerm = ""; // Aktueller Suchbegriff
 
-// Echtzeit Sync: Wird automatisch ausgelöst wenn sich Daten ändern
-onSnapshot(foodsCollection, (snapshot) => {
-
-    foods = []; // Array leeren
-
-    snapshot.forEach((docItem) => { // Jedes Dokument durchgehen
-        foods.push({
-            id: docItem.id, // Dokument-ID speichern
-            name: docItem.data().name // Name speichern
-        });
-    });
-
-    foods.sort((a,b)=> a.name.localeCompare(b.name)); // Alphabetisch sortieren
-    renderList(); // Liste neu anzeigen
-});
 
 // Essen hinzufügen
 window.addFood = async function() {
 
-    const input = document.getElementById("foodInput"); // Eingabefeld holen
-    const value = input.value.trim(); // Text holen und Leerzeichen entfernen
+    const input = document.getElementById("foodInput");
+    const value = input.value.trim();
 
-    if (value === "") return; // Wenn leer → abbrechen
+    if (value === "") return;
 
-    await addDoc(foodsCollection, { name: value }); // Neues Dokument speichern
+    // Wenn noch kein Plan existiert → jetzt erstellen
+    if (!planId) {
+        const newId = crypto.randomUUID();
+        window.history.replaceState(null, "", "?plan=" + newId);
+        initializePlan(newId);
+    }
 
-    input.value = ""; // Eingabefeld leeren
+    await addDoc(foodsCollection, { name: value });
+
+    input.value = "";
 };
 
 // Essen löschen
 window.removeFood = async function(id) {
-    await deleteDoc(doc(db, "foods", id)); // Dokument anhand ID löschen
+    await deleteDoc(doc(db, "plans", planId, "foods", id));
 };
 
 // Zufallsgericht auswählen
@@ -365,6 +486,36 @@ window.assignRandom = async function(day) {
         await setDoc(weekPlanRef, weekPlan);
 
         renderWeekPlan();
+};
+
+// Plan teilen
+window.sharePlan = function() {
+
+    if (!planId) {
+        alert("Bitte zuerst ein Gericht hinzufügen 😊");
+        return;
+    }
+
+    const shareUrl = window.location.href;
+
+    document.getElementById("shareLinkInput").value = shareUrl;
+    document.getElementById("shareModal").style.display = "flex";
+};
+
+window.closeShareModal = function() {
+    document.getElementById("shareModal").style.display = "none";
+};
+
+window.copyShareLink = async function() {
+
+    const link = document.getElementById("shareLinkInput").value;
+
+    try {
+        await navigator.clipboard.writeText(link);
+        alert("Link kopiert!");
+    } catch (err) {
+        alert("Kopieren fehlgeschlagen 😅");
+    }
 };
 
 window.resetWeekPlan = async function() {
