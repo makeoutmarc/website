@@ -35,13 +35,14 @@ h1 {
 
 /* Eingabefeld */
 input {
-  width: 100%; /* Volle Breite */
-  padding: 10px; /* Innenabstand */
-  font-size: 16px; /* Schriftgröße */
-  border-radius: 6px; /* Runde Ecken */
-  border: 1px solid #ccc; /* Rahmen */
-  margin-bottom: 15px;/* Abstand nach unten */
-  box-sizing: border-box;   /* ← WICHTIG */
+  width: 100%;
+  height: 48px;              /* feste Höhe */
+  padding: 0 12px;           /* nur horizontaler Abstand */
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  box-sizing: border-box;
 }
 
 
@@ -82,6 +83,7 @@ button {
     font-weight: bold;
     font-size: 16px;
     margin-bottom: 15px;
+    outline: #000000 solid 1px;
 }
 
 .random-btn:hover {
@@ -320,6 +322,102 @@ ul {
     background: #e74c3c;
 }
 
+/* ================= ADD ROW (Input + Plus Button) ================= */
+
+.add-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-row input {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.add-icon-btn {
+    width: 50px;
+    background: #00b44b;
+    color: white;
+    font-size: 22px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s ease;
+    height: 48px;     /* gleiche Höhe wie Input */
+}
+
+.add-icon-btn:hover {
+    background: #27ae60;
+    transform: scale(1.05);
+}
+
+/* ================= TABS ================= */
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+}
+
+.tab {
+    background: none;
+    border: none;
+    padding: 10px 18px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: 0.2s ease;
+}
+
+.tab:hover {
+    color: black;
+}
+
+.tab.active {
+    color: black;
+    font-weight: bold;
+    border-bottom: 3px solid #00b44b;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ================= TOP BAR ================= */
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.top-bar h1 {
+    margin: 0;
+}
+
+.share-top-btn {
+    background: #ffbb00;
+    color: black;
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    transition: 0.2s ease;
+    outline: #000000 solid 1px;
+}
+
+.share-top-btn:hover {
+    background: #e2a800;
+}
+
 </style>
 </head>
 
@@ -327,50 +425,50 @@ ul {
 
 <body>
 
+<body>
+
+<div id="toast" class="toast"></div>
+
 <div class="container">
 
+    <div class="top-bar">
     <h1>Essensideen</h1>
-
-    <input type="text" id="foodInput" placeholder="Neues Essen hinzufügen">
-    <button class="add-btn" onclick="addFood()">Hinzufügen</button>
-
-    <input type="text" id="searchInput" placeholder="Gericht suchen...">
-
-    <div id="foodList"></div>
-
-    <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
-
-    <button onclick="sharePlan()">🔗 Plan teilen</button>
-
-    <div id="shareModal" class="share-modal">
-    <div class="share-box">
-
-        <div class="share-tabs">
-            <div class="active-tab">🔗 Link kopieren</div>
-        </div>
-
-        <p>Kopiere diesen Link und teile ihn mit anderen.</p>
-
-        <div class="share-input-row">
-            <input type="text" id="shareLinkInput" readonly>
-            <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
-        </div>
-
-        <button class="close-btn" onclick="closeShareModal()">Schließen</button>
-
-    </div>
+    <button class="share-top-btn" onclick="sharePlan()">🔗 Plan teilen</button>
 </div>
 
-    <div id="result"></div>
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('meals')">Gerichte</button>
+        <button class="tab" onclick="switchTab('week')">Wochenplan</button>
+    </div>
 
-    <!-- Trennlinie -->
-    <hr class="section-divider">
+    <!-- GERICHETE VIEW -->
+    <div id="mealsView" class="tab-content active">
 
-    <h2>Wochenplan</h2>
-    
-    <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
+        <!-- Add Row -->
+        <div class="add-row">
+            <input type="text" id="foodInput" placeholder="Neues Gericht hinzufügen...">
+            <button class="add-icon-btn" onclick="addFood()">+</button>
+        </div>
 
-    <div id="weekPlan"></div>
+        <input type="text" id="searchInput" placeholder="Gericht suchen...">
+
+        <div id="foodList"></div>
+
+        <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <!-- WOCHENPLAN VIEW -->
+    <div id="weekView" class="tab-content">
+
+        <h2>Wochenplan</h2>
+        <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
+        <div id="weekPlan"></div>
+
+    </div>
 
 </div>
 
@@ -491,6 +589,7 @@ window.addFood = async function() {
     }
 
     await addDoc(foodsCollection, { name: value });
+    showToast("Gericht hinzugefügt ✔", "success");
 
     input.value = "";
 };
@@ -522,7 +621,7 @@ window.assignRandom = async function(day) {
     );
 
     if (availableMeals.length === 0) {
-        alert("Keine Gerichte mehr verfügbar 😅");
+        showToast("Keine Gerichte mehr verfügbar. Bitte neue Gerichte hinzufügen", "error");
         return;
     }
 
@@ -533,13 +632,14 @@ window.assignRandom = async function(day) {
         await setDoc(weekPlanRef, weekPlan);
 
         renderWeekPlan();
+        
 };
 
 // Plan teilen
 window.sharePlan = function() {
 
     if (!planId) {
-        alert("Bitte zuerst ein Gericht hinzufügen 😊");
+        showToast("Bitte zuerst ein Gericht hinzufügen", "error");
         return;
     }
 
@@ -578,8 +678,30 @@ window.resetWeekPlan = async function() {
     };
 
     await setDoc(weekPlanRef, weekPlan);
+    showToast("Woche zurückgesetzt ✔", "success");
 
     renderWeekPlan();
+};
+
+window.switchTab = function(tabName) {
+
+    document.querySelectorAll(".tab").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    document.querySelectorAll(".tab-content").forEach(view => {
+        view.classList.remove("active");
+    });
+
+    if (tabName === "meals") {
+        document.getElementById("mealsView").classList.add("active");
+        document.querySelectorAll(".tab")[0].classList.add("active");
+    }
+
+    if (tabName === "week") {
+        document.getElementById("weekView").classList.add("active");
+        document.querySelectorAll(".tab")[1].classList.add("active");
+    }
 };
 
 document.getElementById("searchInput").addEventListener("input", function(e) {
