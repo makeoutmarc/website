@@ -1,9 +1,17 @@
 <!DOCTYPE html> <!-- HTML5 Dokumenttyp -->
 <html lang="de"> <!-- Sprache der Website = Deutsch -->
 <head>
+    <script>
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+
 <meta charset="UTF-8"> <!-- Zeichencodierung -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile Optimierung -->
-<title>Essensideen</title> <!-- Titel im Browser-Tab -->
+<title>Meal Planner</title> <!-- Titel im Browser-Tab -->
+
 
 <style>
 
@@ -11,21 +19,40 @@
    GRUNDLAYOUT
 ========================= */
 
+:root {
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #cbd5e1;
+}
+
 body {
-    font-family: Arial, sans-serif; /* Schriftart */
-    background: #f5f7fa; /* Hintergrundfarbe */
-    display: flex; /* Flexbox aktivieren --> hilft beim zentrieren */
-    justify-content: center; /* Inhalt horizontal zentrieren */
-    padding: 40px 20px; /* Außenabstand */
+    font-family: Arial, sans-serif;
+    
+    background-color: #0f1115;
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(0,180,75,0.15), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0,180,75,0.10), transparent 40%);
+    
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* Hauptcontainer */
 .container {
-    background: white; /* Weißer Kasten */
+    background: var(--card);
     padding: 30px;  /* Innenabstand */
     width: 1000px;  /* Feste Breite */
     border-radius: 12px;    /* Abgerundete Ecken */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 /* Überschrift */
@@ -36,13 +63,20 @@ h1 {
 /* Eingabefeld */
 input {
   width: 100%;
-  height: 48px;              /* feste Höhe */
-  padding: 0 12px;           /* nur horizontaler Abstand */
+  height: 48px;
+  padding: 0 12px;
   font-size: 16px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
   margin-bottom: 15px;
   box-sizing: border-box;
+  transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
+}
+
+input::placeholder {
+  color: var(--muted);
 }
 
 
@@ -76,34 +110,50 @@ button {
 
 /* Zufalls Button */
 .random-btn {
-    background: #3498db; /* Blau */
+    background: #00b44b;
     color: white;
     width: 100%;
     margin-top: 15px;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 16px;
     margin-bottom: 15px;
-    outline: #000000 solid 1px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
 .random-btn:hover {
-    background: #2980b9; /* Dunkler bei Hover */
-}
-
-.container {
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
 }
 
 .day-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 
-    border: 1px solid #000000;   /* Rahmen */
-    padding: 8px 10px;           /* Innenabstand */
-    border-radius: 6px;          /* Runde Ecken */
-    /*Abstand zu rand rechts*/
-    margin-bottom: 10px; /* Abstand nach unten */
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+
+    transition: all 0.2s ease;
+}
+
+.day-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    background: #f3f4f6; /* Light Mode */
+}
+
+body.dark .day-row:hover {
+    background: #22262d;
+}
+
+.day-row.filled {
+    border-left: 5px solid #00b44b;
+    background: #f0fdf4; /* Light Mode */
 }
 
 .day-row span {
@@ -138,34 +188,44 @@ ul {
 
 /* Einzelnes Essen */
 .food-item {
-    background: #e4e4e4; /* Heller Hintergrund */
-    border: 1px solid #000000;  /* Dünner schwarzer Rahmen um die Kästchen drum rum */
-    padding: 10px;  /* Innenabstand */
-    margin-bottom: 8px; /* Abstand nach unten */
-    border-radius: 6px; /* Runde Ecken */
-    display: flex; /* Flexbox aktivieren */
-    justify-content: space-between; /* Abstand zwischen Text & Button */
-    align-items: center; /* Vertikal zentrieren */
-    break-inside: avoid;   /* Verhindert Umbruch mitten im Element */
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    break-inside: avoid;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+}
+
+.food-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    background: #f3f4f6; /* Light Mode Hover */
 }
 
 /* Entfernen Button */
 .remove-btn {
-    background: rgb(240, 59, 59); /* Rot */
-    color: white; /* Textfarbe */
-    width: 20px;    /* Quadratisch */
-    height: 20px;   /* Quadratisch */
-    padding: 0;     /* Kein Innenabstand, damit Text zentriert */                  
-    font-size: 16px; /* Kleine Schrift, damit es in den Button passt */
-    line-height: 1; /* Zeilenhöhe anpassen, damit Text vertikal zentriert ist */
-    border-radius: 50%; /* Runde Form */
-    display: flex;              /* ← macht echtes Zentrieren */
-    justify-content: center; /* Horizontal zentrieren */
-    align-items: center; /* Vertikal zentrieren */
+    background: transparent;
+    color: #646464;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
 }
 
 .remove-btn:hover {
-    background: darkred; /* Hover-Effekt */
+    background: #fee2e2;
+    color: #dc2626;
+    transform: scale(1.1);
 }
 
 .grid-container {
@@ -207,13 +267,17 @@ ul {
 }
 
 .reset-btn {
-    background: #f39c12;
-    color: white;
-    margin-bottom: 15px;
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 0;
+    cursor: pointer;
 }
 
 .reset-btn:hover {
-    background: #e67e22;
+    text-decoration: underline;
 }
 
 /* ================= SHARE MODAL ================= */
@@ -355,32 +419,46 @@ ul {
 
 /* ================= TABS ================= */
 
+/* ================= MODERN TABS ================= */
+
 .tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #eee;
+    display: inline-flex;
+    background: var(--card);
+    padding: 6px;
+    border-radius: 14px;
+    gap: 4px;
+    margin-bottom: 0px;
+    border: 1px solid var(--border);
+}
+
+/* Wrapper um die Tabs, um den unteren Rand zu gestalten */
+.tabs-wrapper { 
+    border-bottom: 2px solid #000000;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
 }
 
 .tab {
-    background: none;
+    background: transparent;
     border: none;
-    padding: 10px 18px;
-    font-size: 16px;
+    padding: 8px 18px;
+    font-size: 14px;
     cursor: pointer;
-    color: #666;
-    border-bottom: 3px solid transparent;
-    transition: 0.2s ease;
+    color: var(--muted);
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.25s ease;
 }
 
 .tab:hover {
-    color: black;
+    background: rgba(0,0,0,0.05);
 }
 
 .tab.active {
-    color: black;
-    font-weight: bold;
-    border-bottom: 3px solid #00b44b;
+    background: #00b44b;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,180,75,0.3);
 }
 
 .tab-content {
@@ -405,25 +483,224 @@ ul {
 }
 
 .share-top-btn {
-    background: #ffbb00;
-    color: black;
-    padding: 8px 14px;
+    background: #f0fdf4;
+    color: #059669;
+    padding: 10px 18px;              /* etwas mehr Luft */
     font-size: 14px;
-    border-radius: 8px;
-    transition: 0.2s ease;
-    outline: #000000 solid 1px;
+    border-radius: 14px;             /* weicher */
+    font-weight: 600;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);   /* ganz leichter Grundschatten */
+    transition: all 0.2s ease;
 }
 
 .share-top-btn:hover {
-    background: #e2a800;
+    background: #00b44b;
+    color: white;
+    transform: translateY(-1px);     /* weniger aggressiv */
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
+
+/* ================= LETTER HEADINGS ================= */
+
+.letter-heading {
+    margin: 20px 0 10px 0;
+}
+
+.letter-label {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.7;
+    margin: 25px 0 10px 0;
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.letter-label::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+}
+
+/* ================= WEEKPLAN MODERN ================= */
+
+.day-left {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.day-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 3px;
+}
+
+.day-meal {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.dice-btn {
+    background: #e5e7eb;
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dice-btn.spin {
+    animation: diceSpin 0.4s ease;
+}
+
+@keyframes diceSpin {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.dice-btn:hover {
+    background: #00b44b;
+    color: white;
+    transform: scale(1.05);
+}
+
+.empty-meal {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* ================= MEAL COUNT ================= */
+
+.meal-count {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* ================= TAB BADGE ================= */
+
+.tab-badge {
+    display: inline-block;          /* WICHTIG */
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 7px;
+    font-size: 11px;
+    border-radius: 20px;
+    margin-left: 6px;
+    transform-origin: center;       /* sauberer Scale */
+}
+
+.tab-badge.bump {
+    animation: bump 0.4s ease;
+}
+
+@keyframes bump {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.45); }
+    100% { transform: scale(1); }
+}
+
+.tab.active .tab-badge {
+    background: #00b44b;
+    color: white;
+}
+
+body.dark {
+    --bg: #0f1115;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(0,180,75,0.12), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0,180,75,0.08), transparent 40%),
+        #0f1115;
+    --card: #1a1d23;
+    --text: #f1f5f9;
+    --muted: #9aa4b2;
+    --border: #2a2f36;
+}
+
+body.dark .tabs {
+    background: #15181d;
+    border: 1px solid #2a2f36;
+}
+
+body.dark .tab:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+body.dark .day-row.filled {
+    background: #1f2a22;   /* dunkles, entsättigtes Grün */
+    border-left: 5px solid #00b44b;
+}
+
+body.dark .day-row.filled .day-name {
+    color: #9fb8a8; /* leicht grünlich gedämpft */
+}
+
+body.dark .day-row.filled {
+    color: #e6f4ea; /* helles Grün statt reines Weiß */
+}
+
+body.dark .food-item:hover {
+    background: #22262d;
+}
+
+body.dark .tab-badge {
+    background: #2a2f36;
+    color: #cbd5e1;
+}
+
+body.dark .tab.active .tab-badge {
+    background: #00b44b;
+    color: white;
+}
+
+body.dark .reset-btn {
+    color: #f87171;
+}
+
+body.dark .reset-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+body.dark .tabs-wrapper {
+    border-bottom: 2px solid #ffffff;
+}
+
+body.dark .letter-label::after {
+    background: #3a4048;
+}
+
+body.dark .remove-btn {
+    color: #ffffff;
+}
+
+#weekView .reset-btn {
+    display: block;
+    margin-left: auto;
+    margin-top: 20px;
+}
+
+
 
 </style>
 </head>
-
-<div id="toast" class="toast"></div>
-
-<body>
 
 <body>
 
@@ -432,41 +709,50 @@ ul {
 <div class="container">
 
     <div class="top-bar">
-    <h1>Essensideen</h1>
-    <button class="share-top-btn" onclick="sharePlan()">🔗 Plan teilen</button>
-</div>
+    <h1>Meal Planner</h1>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+        <button id="themeToggle" class="share-top-btn">🌙</button>
+        <button class="share-top-btn" onclick="sharePlan()">Teilen</button>
+    </div>
+    </div>
 
     <!-- TABS -->
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('meals')">Gerichte</button>
-        <button class="tab" onclick="switchTab('week')">Wochenplan</button>
+    <div class="tabs-wrapper">
+        <div class="tabs">
+        <button class="tab active" onclick="switchTab('meals')">
+            Gerichte <span id="mealCountBadge" class="tab-badge">0</span>
+        </button>
+        <button class="tab" onclick="switchTab('week')">
+            Wochenplan <span id="weekCountBadge" class="tab-badge">0/7</span>
+        </button>
+        </div>
     </div>
 
     <!-- GERICHETE VIEW -->
     <div id="mealsView" class="tab-content active">
 
-        <!-- Add Row -->
-        <div class="add-row">
-            <input type="text" id="foodInput" placeholder="Neues Gericht hinzufügen...">
-            <button class="add-icon-btn" onclick="addFood()">+</button>
-        </div>
-
-        <input type="text" id="searchInput" placeholder="Gericht suchen...">
-
-        <div id="foodList"></div>
-
-        <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
-
-        <div id="result"></div>
-
+    <div class="add-row">
+        <input type="text" id="foodInput" placeholder="Neues Gericht hinzufügen...">
+        <button class="add-icon-btn" onclick="addFood()">+</button>
     </div>
+
+    <input type="text" id="searchInput" placeholder="Gericht suchen...">
+
+    <div id="foodList"></div>
+
+    <button class="random-btn" onclick="pickRandomFood()">Zufälliges Gericht auswählen</button>
+
+    <div id="result"></div>
+
+</div>
 
     <!-- WOCHENPLAN VIEW -->
     <div id="weekView" class="tab-content">
 
-        <h2>Wochenplan</h2>
-        <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
+        
         <div id="weekPlan"></div>
+        <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
 
     </div>
 
@@ -608,9 +894,14 @@ window.pickRandomFood = function() {
     document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
 };
 
-window.assignRandom = async function(day) {
+window.assignRandom = async function(day, event) {
 
     if (foods.length === 0) return;
+    // Button finden und Animation starten
+    const button = event.target;
+    button.classList.remove("spin");
+    void button.offsetWidth;
+    button.classList.add("spin");
 
     // Bereits vergebene Gerichte sammeln
     const usedMeals = Object.values(weekPlan).filter(meal => meal !== null);
@@ -720,6 +1011,7 @@ function renderList() {
 
     const container = document.getElementById("foodList");
     container.innerHTML = "";
+    updateMealCount();
 
     const filteredFoods = foods.filter(food =>
         food.name.toLowerCase().includes(searchTerm)
@@ -753,7 +1045,10 @@ function renderList() {
                 currentLetter = firstLetter;
 
                 const letter = document.createElement("div");
-                letter.innerHTML = `<strong>${currentLetter}</strong><hr>`;
+                letter.className = "letter-heading";
+                letter.innerHTML = `
+                <div class="letter-label">${currentLetter}</div>
+                `;
                 column.appendChild(letter);
             }
 
@@ -783,16 +1078,19 @@ function renderWeekPlan() {
     daysOrder.forEach(day => {
 
         const row = document.createElement("div");
-        row.className = "day-row";
+        row.className = weekPlan[day] ? "day-row filled" : "day-row";
 
         row.innerHTML = `
-            <span><strong>${day}</strong></span>
-            <button onclick="assignRandom('${day}')">🎲</button>
-            <span>${weekPlan[day] || "-"}</span>
+        <div class="day-left">
+        <div class="day-name">${day}</div>
+        ${weekPlan[day] ? weekPlan[day] : "<span class='empty-meal'>Noch nichts geplant</span>"}
+        </div>
+        <button class="dice-btn" onclick="assignRandom('${day}', event)">🎲</button>
         `;
 
         container.appendChild(row);
     });
+    updateWeekCount();
 }
 async function loadWeekPlan() {
 
@@ -817,6 +1115,73 @@ function showToast(message, type = "success") {
         toast.classList.remove("show");
     }, 3000);
 }
+
+function updateMealCount() {
+
+    const badge = document.getElementById("mealCountBadge");
+    if (!badge) return;
+
+    const newValue = foods.length.toString();
+
+    if (badge.innerText !== newValue) {
+
+        badge.innerText = newValue;
+
+        badge.classList.remove("bump");
+        void badge.offsetWidth; // Reflow erzwingen
+        badge.classList.add("bump");
+
+    } else {
+        badge.innerText = newValue;
+    }
+}
+
+function updateWeekCount() {
+
+    const badge = document.getElementById("weekCountBadge");
+    if (!badge) return;
+
+    const filledDays = Object.values(weekPlan)
+        .filter(meal => meal !== null).length;
+
+    const newValue = filledDays + "/7";
+
+    // Nur animieren, wenn sich der Wert ändert
+    if (badge.innerText !== newValue) {
+
+        badge.innerText = newValue;
+
+        badge.classList.remove("bump");
+        void badge.offsetWidth; // reflow erzwingen
+        badge.classList.add("bump");
+
+    } else {
+        badge.innerText = newValue;
+    }
+}
+
+const toggleBtn = document.getElementById("themeToggle");
+
+function applyTheme(theme) {
+    if (theme === "dark") {
+        document.body.classList.add("dark");
+        toggleBtn.textContent = "☀️";
+    } else {
+        document.body.classList.remove("dark");
+        toggleBtn.textContent = "🌙";
+    }
+}
+
+toggleBtn.addEventListener("click", () => {
+    const isDark = document.body.classList.contains("dark");
+    const newTheme = isDark ? "light" : "dark";
+
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+});
+
+// gespeichertes Theme laden
+applyTheme(localStorage.getItem("theme") || "light");
 </script>
 
 </body>
