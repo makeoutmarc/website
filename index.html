@@ -43,13 +43,17 @@ body {
     justify-content: center;
     padding: 40px 20px;
     transition: background 0.3s ease, color 0.3s ease;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 /* Hauptcontainer */
 .container {
     background: var(--card);
     padding: 30px;  /* Innenabstand */
-    width: 1000px;  /* Feste Breite */
+    width: 100%;
+    max-width: 1000px;
+    box-sizing: border-box;
     border-radius: 12px;    /* Abgerundete Ecken */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -130,6 +134,7 @@ button {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 
     background: var(--card);
     border: 1px solid var(--border);
