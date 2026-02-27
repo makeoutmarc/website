@@ -42,7 +42,6 @@ body {
     display: flex;
     justify-content: center;
     padding: 40px 20px;
-    min-height: 100vh;
     transition: background 0.3s ease, color 0.3s ease;
 }
 
@@ -50,8 +49,7 @@ body {
 .container {
     background: var(--card);
     padding: 30px;  /* Innenabstand */
-    width: 100%;
-    max-width: 1000px;
+    width: 1000px;  /* Feste Breite */
     border-radius: 12px;    /* Abgerundete Ecken */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -697,12 +695,6 @@ body.dark .remove-btn {
     display: block;
     margin-left: auto;
     margin-top: 20px;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
 }
 
 
