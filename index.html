@@ -216,6 +216,8 @@ ul {
 
 /* ================= SHARE MODAL ================= */
 
+/* Hintergrund des Modals */
+/* Modal = kleines Fenster, das über der Seite liegt, um z.B. Informationen anzuzeigen oder Aktionen durchzuführen */
 .share-modal {
     display: none;
     position: fixed;
@@ -227,6 +229,7 @@ ul {
     
 }
 
+/* Weißes Kästchen im Modal */
 .share-box {
     background: white;
     width: 500px;
@@ -237,11 +240,13 @@ ul {
     margin-top: 15px;
 }
 
+/* Tabs im Modal (z.B. für Link kopieren, QR Code, etc.) */
 .share-tabs {
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px;
 }
 
+/* Aktiver Tab */
 .active-tab {
     font-weight: bold;
     padding-bottom: 8px;
@@ -249,6 +254,7 @@ ul {
     display: inline-block;
 }
 
+/* Zeile mit Eingabefeld und Kopieren-Button */
 .share-input-row {
     display: flex;
     gap: 10px;
@@ -256,27 +262,68 @@ ul {
     height: auto;
 }
 
+/* Eingabefeld im Modal */
 .copy-btn {
     background: #f4b400;
     color: black;
     white-space: nowrap;
 }
 
+/* Einfacher Hover-Effekt für den Kopieren-Button */
+/* Hover = wenn Maus über dem Button ist */
 .copy-btn:hover {
     background: #e2a800;
 }
 
+/* Schließen Button */
 .close-btn {
     margin-top: 15px;
     background: #ccc;
 }
 
+/* Einfacher Hover-Effekt für den Schließen-Button */
 .close-btn:hover {
     background: #bbb;
 }
 
+/* ================= TOAST ================= (TOAST = kleine Benachrichtigung, die kurz aufpoppt) */
+.toast {
+    position: fixed;                                   /* Immer sichtbar, auch beim Scrollen */
+    bottom: 30px;                                   /* Abstand vom unteren Rand */
+    left: 50%;                                      /* Horizontal zentrieren */
+    transform: translateX(-50%) translateY(20px);   /* Startet leicht unterhalb der Mitte */
+    background: rgba(0,0,0,0.85);                 /* Heller Hintergrund mit Transparenz */
+    backdrop-filter: blur(6px);                     /* Weiche Unschärfe für den Hintergrund */
+    color: rgb(0, 0, 0);                          /* Dunkle Schriftfarbe */
+    padding: 14px 22px;                             /* Innenabstand */
+    border-radius: 12px;                            /* Runde Ecken */
+    font-size: 20px;                                /* Größere Schrift */
+    opacity: 0;                                     /* Unsichtbar am Anfang */
+    transition: all 0.3s ease;                      /* Weiche Animation für Ein- und Ausblenden */
+    z-index: 2000; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25); /* Schatten für 3D-Effekt */
+}
+
+/* Wenn die Klasse "show" hinzugefügt wird, wird der Toast sichtbar und bewegt sich leicht nach oben */
+.toast.show { 
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Unterschiedliche Hintergrundfarben für Erfolg und Fehler */
+.toast.success {
+    background: #ffffff;
+}
+
+/* Fehler-Toast mit rotem Hintergrund */
+.toast.error {
+    background: #e74c3c;
+}
+
 </style>
 </head>
+
+<div id="toast" class="toast"></div>
 
 <body>
 
@@ -512,9 +559,9 @@ window.copyShareLink = async function() {
 
     try {
         await navigator.clipboard.writeText(link);
-        alert("Link kopiert!");
+        showToast("✔ Link kopiert", "success");
     } catch (err) {
-        alert("Kopieren fehlgeschlagen 😅");
+        showToast("Kopieren fehlgeschlagen 😅", "error");
     }
 };
 
@@ -636,6 +683,18 @@ async function loadWeekPlan() {
     renderWeekPlan();
 }
 loadWeekPlan();
+
+function showToast(message, type = "success") {
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.className = "toast show " + type;
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
 </script>
 
 </body>
