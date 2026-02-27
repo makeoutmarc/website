@@ -70,7 +70,7 @@ input {
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);
-  margin-bottom: 15px;
+  margin-bottom: 0px;
   box-sizing: border-box;
   transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
 }
@@ -332,6 +332,7 @@ ul {
     border-radius: 10px;
     padding: 0 14px;
     font-size: 14px;
+    margin-bottom: 10px;
 }
 
 /* Eingabefeld im Modal */
@@ -734,7 +735,7 @@ body.dark .copy-btn {
 }
 
 .share-header h3 {
-    margin: 0;
+    margin-bottom: -50px;
     font-size: 20px;
     font-weight: 600;
 }
@@ -763,7 +764,7 @@ body.dark .copy-btn {
     font-size: 14px;
     line-height: 1.6;
     color: var(--muted);
-    margin: 0;
+    margin-bottom: -10px;
 }
 
 .random-row {
@@ -786,7 +787,7 @@ body.dark .copy-btn {
 .section-title {
     font-size: 15px;
     font-weight: 600;
-    margin: 15px 0 -30px 0;   /* ↓ weniger Abstand */
+    margin: 15px 0 10px 0;   /* ↓ weniger Abstand */
     color: var(--muted);
     position: relative;
     padding-bottom: 6px;
@@ -883,10 +884,14 @@ body.dark .copy-btn {
     </p>
 
     <div class="share-input-row">
-      <input type="text" id="shareLinkInput" readonly>
-      <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
-    </div>
+  <input type="text" id="shareLinkInput" readonly>
+  <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
+</div>
 
+<button class="copy-btn" 
+        style="background:#00b44b; color:white;"
+        onclick="createNewPlanLink()"> Neuen Plan erstellen & kopieren </button>
+    
   </div>
 </div>
 
@@ -1119,10 +1124,21 @@ window.switchTab = function(tabName) {
 window.copyShareLink = async function() {
 
     const link = document.getElementById("shareLinkInput").value;
+};
+
+// ================= NEUEN PLAN ERZEUGEN & DIREKT KOPIEREN =================
+window.createNewPlanLink = async function() {
+
+    const newId = crypto.randomUUID();
+
+    const newUrl =
+        window.location.origin +
+        window.location.pathname +
+        "?plan=" + newId;
 
     try {
-        await navigator.clipboard.writeText(link);
-        showToast("✔ Link kopiert", "success");
+        await navigator.clipboard.writeText(newUrl);
+        showToast("✔ Neuer Plan Link kopiert", "success");
     } catch (err) {
         showToast("Kopieren fehlgeschlagen 😅", "error");
     }
@@ -1161,35 +1177,42 @@ function renderList() {
         return;
     }
 
-    // Liste halbieren
-    const middle = Math.ceil(filteredFoods.length / 2);
-    const leftFoods = filteredFoods.slice(0, middle);
-    const rightFoods = filteredFoods.slice(middle);
+    // 🔹 1️⃣ Nach Buchstaben gruppieren
+    const groups = {};
 
+    filteredFoods.forEach(food => {
+        const letter = food.name.charAt(0).toUpperCase();
+        if (!groups[letter]) {
+            groups[letter] = [];
+        }
+        groups[letter].push(food);
+    });
+
+    const letters = Object.keys(groups).sort();
+
+    // 🔹 2️⃣ Spalten erstellen
     const leftColumn = document.createElement("div");
     leftColumn.className = "column";
 
     const rightColumn = document.createElement("div");
     rightColumn.className = "column";
 
-    function renderColumn(foodArray, column) {
+    let leftCount = 0;
+    let rightCount = 0;
 
-        let currentLetter = "";
+    // 🔹 3️⃣ Ganze Buchstabenblöcke verteilen
+    letters.forEach(letter => {
 
-        foodArray.forEach(food => {
+        const targetColumn = leftCount <= rightCount ? leftColumn : rightColumn;
 
-            const firstLetter = food.name.charAt(0).toUpperCase();
+        const letterHeading = document.createElement("div");
+        letterHeading.className = "letter-heading";
+        letterHeading.innerHTML = `
+            <div class="letter-label">${letter}</div>
+        `;
+        targetColumn.appendChild(letterHeading);
 
-            if (firstLetter !== currentLetter) {
-                currentLetter = firstLetter;
-
-                const letter = document.createElement("div");
-                letter.className = "letter-heading";
-                letter.innerHTML = `
-                <div class="letter-label">${currentLetter}</div>
-                `;
-                column.appendChild(letter);
-            }
+        groups[letter].forEach(food => {
 
             const item = document.createElement("div");
             item.className = "food-item";
@@ -1197,13 +1220,16 @@ function renderList() {
                 ${food.name}
                 <button class="remove-btn" onclick="removeFood('${food.id}')">X</button>
             `;
-
-            column.appendChild(item);
+            targetColumn.appendChild(item);
         });
-    }
 
-    renderColumn(leftFoods, leftColumn);
-    renderColumn(rightFoods, rightColumn);
+        if (targetColumn === leftColumn) {
+            leftCount += groups[letter].length;
+        } else {
+            rightCount += groups[letter].length;
+        }
+
+    });
 
     container.appendChild(leftColumn);
     container.appendChild(rightColumn);
