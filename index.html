@@ -302,6 +302,7 @@ ul {
 .share-box {
     background: var(--card);
     width: 480px;
+
     max-width: 92%;
     padding: 28px 30px;
     border-radius: 16px;
@@ -332,7 +333,6 @@ ul {
     border-radius: 10px;
     padding: 0 14px;
     font-size: 14px;
-    margin-bottom: 10px;
 }
 
 /* Eingabefeld im Modal */
@@ -732,10 +732,11 @@ body.dark .copy-btn {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: -20px;   /* Abstand nach unten */
 }
 
 .share-header h3 {
-    margin-bottom: -50px;
+    margin-bottom: 0px;
     font-size: 20px;
     font-weight: 600;
 }
@@ -804,6 +805,12 @@ body.dark .copy-btn {
     border-radius: 2px;
 }
 
+.share-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
 </style>
 </head>
@@ -875,7 +882,7 @@ body.dark .copy-btn {
   <div class="share-box">
 
     <div class="share-header">
-      <h3>Plan teilen</h3>
+      <h3>Meal Planner teilen</h3>
       <button class="close-icon" onclick="closeShareModal()">✕</button>
     </div>
 
@@ -1124,6 +1131,13 @@ window.switchTab = function(tabName) {
 window.copyShareLink = async function() {
 
     const link = document.getElementById("shareLinkInput").value;
+
+    try {
+        await navigator.clipboard.writeText(link);
+        showToast("✔ Link kopiert", "success");
+    } catch (err) {
+        showToast("Kopieren fehlgeschlagen 😅", "error");
+    }
 };
 
 // ================= NEUEN PLAN ERZEUGEN & DIREKT KOPIEREN =================
