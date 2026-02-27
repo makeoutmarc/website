@@ -540,25 +540,12 @@ document.getElementById("searchInput").addEventListener("input", function(e) {
     renderList();
 });
 
-// Liste neu aufbauen
-/* function renderList() {
-
-    const list = document.getElementById("foodList"); // UL holen
-    list.innerHTML = ""; // Alte Liste löschen
-
-    foods.forEach((food) => { // Jedes Essen durchgehen
-
-        const li = document.createElement("li"); // Neues Listenelement erstellen
-        li.className = "food-item"; // CSS Klasse setzen
-
-        li.innerHTML = `
-            ${food.name}
-            <button class="remove-btn" onclick="removeFood('${food.id}')">−</button>
-        `; // Inhalt setzen
-
-        list.appendChild(li); // Element zur Liste hinzufügen
-    });
-} */
+document.getElementById("foodInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();   // verhindert unerwünschtes Verhalten
+        addFood();            // ruft deine bestehende Funktion auf
+    }
+});
 
 function renderList() {
 
