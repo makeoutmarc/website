@@ -39,8 +39,6 @@ body {
     background-attachment: fixed;
     
     color: var(--text);
-    display: flex;
-    justify-content: center;
     padding: 40px 20px;
     transition: background 0.3s ease, color 0.3s ease;
     overflow-x: hidden;
@@ -1126,6 +1124,29 @@ body.dark .history-meal {
 @media (max-width: 600px) {
     .container {
         padding: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    #calendarGrid {
+        min-width: 600px;  /* etwas kompakter als 700 */
+        gap: 6px;
+    }
+
+    .calendar-day {
+        min-height: 85px;   /* kleiner */
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .calendar-meal {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    .calendar-date {
+        font-size: 12px;
     }
 }
 
