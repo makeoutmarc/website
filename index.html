@@ -456,12 +456,13 @@ ul {
 }
 
 /* Wrapper um die Tabs, um den unteren Rand zu gestalten */
-.tabs-wrapper { 
-    border-bottom: 2px solid #000000;
-    padding-bottom: 12px;
-    margin-bottom: 18px;
-    overflow-x: auto;        /* 🔥 erlaubt horizontales Scrollen */
-    -webkit-overflow-scrolling: touch;  /* smooth iOS scroll */
+.tabs-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+
+    margin: 20px 0 5px 0;   /* 🔥 Luft oben & unten */
+    padding-bottom: 5px;
 }
 
 .tab {
@@ -1127,12 +1128,6 @@ body.dark .history-meal {
         padding: 20px;
     }
 }
-
-.tabs-wrapper {
-    overflow-x: auto;        /* 🔥 erlaubt horizontales Scrollen */
-    -webkit-overflow-scrolling: touch;  /* smooth iOS scroll */
-}
-
 
 </style>
 </head>
