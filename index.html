@@ -1067,11 +1067,12 @@ body.dark .history-meal {
 
 #calendarWeekdays {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     text-align: center;
     font-weight: 600;
     font-size: 13px;
     color: var(--muted);
+    min-width: 700px; /* 🔥 gleiche Breite wie Grid */
 }
 
 .shopping-item {
@@ -1128,6 +1129,10 @@ body.dark .history-meal {
     #calendarGrid {
         min-width: 600px;  /* etwas kompakter als 700 */
         gap: 6px;
+    }
+
+    #calendarWeekdays {
+        min-width: 600px; /* 🔥 gleiche Breite wie Grid */
     }
 
     .calendar-day {
