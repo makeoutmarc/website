@@ -40,6 +40,7 @@ body {
     
     color: var(--text);
     padding: 40px 20px;
+    margin: 0;
     transition: background 0.3s ease, color 0.3s ease;
     overflow-x: hidden;
 }
@@ -53,6 +54,7 @@ body {
     border-radius: 12px;    /* Abgerundete Ecken */
     margin: 0 auto;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
+    box-sizing: border-box;
 }
 
 /* Überschrift */
@@ -1122,12 +1124,6 @@ body.dark .history-meal {
 }
 
 @media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-}
-
-@media (max-width: 600px) {
 
     #calendarGrid {
         min-width: 600px;  /* etwas kompakter als 700 */
@@ -1420,6 +1416,7 @@ let shoppingCollection = null;
 let calendarCollection = null;
 let lastRandom = null;
 let shoppingItems = [];
+let archiveCollection = null;
 
 function formatLocalDate(date) {
     const year = date.getFullYear();
@@ -1436,6 +1433,7 @@ async function initializePlan(id) {
     weekPlanRef = doc(planDocRef, "meta", "weekPlan");
     shoppingCollection = collection(planDocRef, "shopping");
     calendarCollection = collection(planDocRef, "calendarMeals");
+    archiveCollection = collection(planDocRef, "archive");
 
     // Echtzeit Sync starten
     onSnapshot(foodsCollection, (snapshot) => {
