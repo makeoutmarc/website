@@ -52,7 +52,6 @@ body {
     width: 1000px;  /* Feste Breite */
     border-radius: 12px;    /* Abgerundete Ecken */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 /* Überschrift */
@@ -142,6 +141,9 @@ button {
     margin-bottom: 12px;
 
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* <-- wichtig */
 }
 
 .day-row:hover {
@@ -201,8 +203,8 @@ ul {
     justify-content: space-between;
     align-items: center;
     break-inside: avoid;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     transition: all 0.2s ease;
+    min-height: 56px;   /* sorgt für saubere vertikale Mitte */
 }
 
 .food-item:hover {
@@ -213,22 +215,27 @@ ul {
 
 /* Entfernen Button */
 .remove-btn {
-    background: transparent;
-    color: #646464;
-    width: 28px;
-    height: 28px;
+    background: #fee2e2;
+    color: #dc2626;
     border-radius: 8px;
-    display: flex;
-    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+    font-size: 14px;
+
+    display: inline-flex;
     align-items: center;
-    font-size: 16px;
+    justify-content: center;
+
     transition: all 0.2s ease;
 }
 
 .remove-btn:hover {
-    background: #fee2e2;
-    color: #dc2626;
-    transform: scale(1.1);
+    background: #dc2626;
+    color: white;
+    transform: scale(1.05);
 }
 
 .grid-container {
@@ -371,7 +378,7 @@ ul {
     transform: translateX(-50%) translateY(20px);   /* Startet leicht unterhalb der Mitte */
     background: rgba(0,0,0,0.85);                 /* Heller Hintergrund mit Transparenz */
     backdrop-filter: blur(6px);                     /* Weiche Unschärfe für den Hintergrund */
-    color: rgb(0, 0, 0);                          /* Dunkle Schriftfarbe */
+    color: white;                                 /* Weiße Schrift */
     padding: 14px 22px;                             /* Innenabstand */
     border-radius: 12px;                            /* Runde Ecken */
     font-size: 20px;                                /* Größere Schrift */
@@ -389,7 +396,8 @@ ul {
 
 /* Unterschiedliche Hintergrundfarben für Erfolg und Fehler */
 .toast.success {
-    background: #ffffff;
+    background: #00b44b;
+    color: white;
 }
 
 /* Fehler-Toast mit rotem Hintergrund */
@@ -559,6 +567,7 @@ ul {
     font-size: 16px;
     font-weight: 500;
     color: var(--text);
+    cursor: pointer;
 }
 
 .dice-btn {
@@ -612,7 +621,6 @@ ul {
     font-size: 12px;
     font-weight: 600;
     padding: 2px 7px;
-    font-size: 11px;
     border-radius: 20px;
     margin-left: 6px;
     transform-origin: center;       /* sauberer Scale */
@@ -671,6 +679,15 @@ body.dark .food-item:hover {
     background: #22262d;
 }
 
+body.dark .shopping-item.completed {
+    background: #2a2f36;
+    border: 1px solid #3a4048;
+}
+
+body.dark .shopping-item.completed span {
+    color: #7b8794;
+}
+
 body.dark .tab-badge {
     background: #2a2f36;
     color: #cbd5e1;
@@ -712,7 +729,18 @@ body.dark .copy-btn {
     color: #111;
 }
 
+body.dark .toast.success {
+    background: #00b44b;
+    color: white;
+}
+
 #weekView .reset-btn {
+    display: block;
+    margin-left: auto;
+    margin-top: 20px;
+}
+
+#shoppingView .reset-btn {
     display: block;
     margin-left: auto;
     margin-top: 20px;
@@ -832,10 +860,266 @@ body.dark .food-item.editing {
     width: 100%;
 }
 
+/* ================= HISTORY ================= */
+
+body.dark .history-week-badge {
+    background: #00b44b;
+}
+
+body.dark .history-card {
+    background: #1f232b;
+}
+
+/* ================= HISTORY TIMELINE ================= */
+
+.history-timeline {
+    position: relative;
+    padding-left: 80px;   /* mehr Abstand für saubere Optik */
+}
+
+.history-timeline::before {
+    content: "";
+    position: absolute;
+    left: 40px; /* FIXE MITTE */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+}
+
+.history-item {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.history-dot {
+    position: absolute;
+    left: -39px;                /* exakt gleiche Position wie Linie */
+    top: 20px;                 /* Kartenpadding */
+    width: 14px;
+    height: 14px;
+    background: #00b44b;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 4px var(--card);
+}
+
+.history-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    row-gap: 14px;
+    align-items: center;   /* ← das ist der saubere Fix */
+}
+
+.history-day {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;   /* ← das ist der Fix */
+    height: 34px;          /* gleiche visuelle Höhe wie meal */
+}
+
+.history-meal {
+    background: #f3f4f6;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+body.dark .history-meal {
+    background: #2a2f36;
+}
+
+.history-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+.history-meal .empty-meal {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.clear-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 8px;
+
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+    font-size: 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #dc2626;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* ================= SHOPPING ================= */
+
+.shopping-item.completed {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    position: relative;
+}
+
+.shopping-item.completed span {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.shopping-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;              /* 🔥 wichtig */
+    flex-shrink: 0;
+}
+
+/* ================= CALENDAR ================= */
+
+#calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.calendar-day {
+    min-height: 120px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    background: var(--card);
+    font-size: 13px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-meals {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    margin-top: auto;   /* 🔥 DAS ist der entscheidende Fix */
+}
+
+.calendar-meal.dinner {
+    justify-content: end;
+}
+
+.calendar-date {
+    font-weight: 600;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.calendar-meal {
+    background: #e8f5ec;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+
+    display: block;       /* ← nicht flex */
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+#calendarWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#calendarWeekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.shopping-item {
+    display: flex;
+    align-items: center;     /* 🔥 vertikal zentrieren */
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Einheitliche Delete Buttons */
+.remove-btn,
+.clear-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    font-size: 14px !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+#calendarModalButtons .copy-btn {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.meal-text {
+    display: block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.push-bottom {
+    margin-top: auto;
+}
+
+.shopping-text {
+    flex: 1;
+    display: flex;
+    align-items: center;  /* 🔥 Text exakt mittig */
+    font-size: 16px;
+}
+
+
 </style>
 </head>
 
 <body>
+
+    <datalist id="foodsDatalist"></datalist>
 
 <div id="toast" class="toast"></div>
 
@@ -858,6 +1142,12 @@ body.dark .food-item.editing {
         </button>
         <button class="tab" onclick="switchTab('week')">
             Wochenplan <span id="weekCountBadge" class="tab-badge">0/7</span>
+        </button>
+        <button class="tab" onclick="switchTab('shopping')">
+            Einkaufsliste
+        </button>
+        <button class="tab" onclick="switchTab('history')">
+            Historie
         </button>
         </div>
     </div>
@@ -888,11 +1178,52 @@ body.dark .food-item.editing {
 
     <!-- WOCHENPLAN VIEW -->
     <div id="weekView" class="tab-content">
-
         
         <div id="weekPlan"></div>
-        <button class="reset-btn" onclick="resetWeekPlan()">Woche zurücksetzen</button>
+        <button class="reset-btn" onclick="openResetModal()">Woche zurücksetzen</button>
 
+    </div>
+
+    <!-- EINKAUFSLISTE VIEW -->
+    <div id="shoppingView" class="tab-content">
+
+        <div class="add-row">
+            <input type="text" id="shoppingInput" placeholder="Artikel hinzufügen...">
+            <button class="add-icon-btn" onclick="addShoppingItem()">+</button>
+        </div>
+
+        <div id="shoppingList"></div>
+
+        <button class="reset-btn" onclick="clearCompletedItems()">
+            Erledigte entfernen
+        </button>
+
+    </div>
+
+    <div id="historyView" class="tab-content">
+    <h2 class="section-title">Kalender</h2>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <button onclick="changeMonth(-1)" class="share-top-btn">←</button>
+        <div id="calendarTitle" style="font-weight:600;"></div>
+        <button onclick="changeMonth(1)" class="share-top-btn">→</button>
+    </div>
+
+    <div id="calendarWrapper">
+
+    <div id="calendarWeekdays">
+        <div>Mo</div>
+        <div>Di</div>
+        <div>Mi</div>
+        <div>Do</div>
+        <div>Fr</div>
+        <div>Sa</div>
+        <div>So</div>
+    </div>
+
+    <div id="calendarGrid"></div>
+
+</div>
     </div>
 
 </div>
@@ -911,14 +1242,98 @@ body.dark .food-item.editing {
     </p>
 
     <div class="share-input-row">
-  <input type="text" id="shareLinkInput" readonly>
-  <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
+      <input type="text" id="shareLinkInput" readonly>
+      <button class="copy-btn" onclick="copyShareLink()">Link kopieren</button>
+    </div>
+
+    <button class="copy-btn"
+            style="background:#00b44b; color:white;"
+            onclick="createNewPlanLink()">
+      Neuen Plan erstellen & kopieren
+    </button>
+
+  </div>
 </div>
 
-<button class="copy-btn" 
-        style="background:#00b44b; color:white;"
-        onclick="createNewPlanLink()"> Neuen Plan erstellen & kopieren </button>
-    
+
+<!-- RESET MODAL (JETZT SEPARAT!) -->
+<div id="resetModal" class="share-modal">
+  <div class="share-box">
+
+    <div class="share-header">
+      <h3>Woche zurücksetzen?</h3>
+      <button class="close-icon" onclick="closeResetModal()">✕</button>
+    </div>
+
+    <p class="share-description">
+      Möchtest du wirklich alle Gerichte dieser Woche löschen?
+    </p>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <button class="copy-btn"
+              style="background:#e5e7eb; color:#111;"
+              onclick="closeResetModal()">
+        Nein
+      </button>
+
+      <button class="copy-btn"
+              style="background:#dc2626; color:white;"
+              onclick="confirmResetWeek()">
+        Ja, löschen
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CALENDAR EDIT MODAL -->
+<div id="calendarModal" class="share-modal">
+  <div class="share-box">
+
+    <div class="share-header">
+      <h3>Gericht planen</h3>
+      <button class="close-icon" onclick="closeCalendarModal()">✕</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:15px;">
+
+  <input type="text"
+         id="calendarBreakfastInput"
+         placeholder="Frühstück..."
+         list="foodsDatalist">
+
+  <input type="text"
+         id="calendarLunchInput"
+         placeholder="Mittagessen..."
+         list="foodsDatalist">
+
+  <input type="text"
+         id="calendarDinnerInput"
+         placeholder="Abendessen..."
+         list="foodsDatalist">
+
+    </div>
+    <button class="copy-btn"
+            style="background:#e5e7eb; color:#111;"
+            onclick="closeCalendarModal()">
+        Abbrechen
+    </button>
+
+    <button id="calendarDeleteBtn"
+            class="copy-btn"
+            style="background:#dc2626; color:white; display:none;"
+            onclick="deleteCalendarMeal()">
+        Löschen
+    </button>
+
+    <button class="copy-btn"
+            style="background:#00b44b; color:white;"
+            onclick="saveCalendarMeal()">
+        Speichern
+    </button>
+
+    </div>
+
   </div>
 </div>
 
@@ -935,7 +1350,8 @@ import {
     onSnapshot,
     setDoc,
     getDoc,
-    updateDoc
+    updateDoc,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 // Firebase Config (Verbindungsdaten zu deinem Projekt)
@@ -960,22 +1376,30 @@ const db = getFirestore(app); // Firestore Datenbank starten
 const urlParams = new URLSearchParams(window.location.search);
 let planId = urlParams.get("plan");
 
-// Wenn kein Plan existiert → erstmal null
-if (!planId) {
-    planId = null;
-}
-
 // Referenzen werden später gesetzt
 let planDocRef = null;
 let foodsCollection = null;
 let weekPlanRef = null;
+let shoppingCollection = null;
+let calendarCollection = null;
+let lastRandom = null;
+let shoppingItems = [];
 
-function initializePlan(id) {
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+async function initializePlan(id) {
     planId = id;
 
     planDocRef = doc(db, "plans", planId);
     foodsCollection = collection(planDocRef, "foods");
     weekPlanRef = doc(planDocRef, "meta", "weekPlan");
+    shoppingCollection = collection(planDocRef, "shopping");
+    calendarCollection = collection(planDocRef, "calendarMeals");
 
     // Echtzeit Sync starten
     onSnapshot(foodsCollection, (snapshot) => {
@@ -989,10 +1413,49 @@ function initializePlan(id) {
         });
 
         foods.sort((a,b)=> a.name.localeCompare(b.name));
+
+        // 🧠 Gelöschte Gerichte aus Wochenplan entfernen
+        let weekPlanChanged = false;
+
+        Object.keys(weekPlan).forEach(day => {
+            if (
+                weekPlan[day] &&
+                !foods.some(f => f.name === weekPlan[day])
+            ) {
+                weekPlan[day] = null;
+                weekPlanChanged = true;
+            }
+        });
+
+        if (weekPlanChanged && weekPlanRef) {
+            setDoc(weekPlanRef, weekPlan);
+        }
+
         renderList();
     });
 
-    loadWeekPlan();
+    await loadWeekPlan();
+    await checkWeekTransition();
+    // 👀 Echtzeit Listener für Einkaufsliste
+    onSnapshot(shoppingCollection, (snapshot) => {
+    shoppingItems = [];
+
+    snapshot.forEach(docItem => {
+        shoppingItems.push({
+            id: docItem.id,
+            ...docItem.data()
+        });
+    });
+
+    renderShoppingList();
+    });
+    // 👀 Echtzeit Listener für Wochenplan
+    onSnapshot(weekPlanRef, (docSnap) => {
+        if (docSnap.exists()) {
+            weekPlan = docSnap.data();
+            renderWeekPlan();
+        }
+    });
 }
 
 // Wenn Plan in URL existiert → direkt initialisieren
@@ -1001,15 +1464,30 @@ if (planId) {
 }
 
 let foods = []; // Lokales Array für alle Gerichte
-let weekPlan = {
-    Montag: null,
-    Dienstag: null,
-    Mittwoch: null,
-    Donnerstag: null,
-    Freitag: null,
-    Samstag: null,
-    Sonntag: null
-};
+let weekPlan = {};
+
+function generateCurrentWeek() {
+
+    const today = new Date();
+    const currentDay = today.getDay();
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+
+    const newWeek = {};
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+
+        const key = formatLocalDate(date);
+
+        newWeek[key] = null;
+    }
+
+    return newWeek;
+}
 
 const daysOrder = [
     "Montag",
@@ -1023,6 +1501,16 @@ const daysOrder = [
 
 let searchTerm = ""; // Aktueller Suchbegriff
 
+function debounce(fn, delay) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
+    };
+}
+
 
 // Essen hinzufügen
 window.addFood = async function() {
@@ -1031,6 +1519,12 @@ window.addFood = async function() {
     const value = input.value.trim();
 
     if (value === "") return;
+
+    // ✅ Duplicate Check hier rein
+    if (foods.some(f => f.name.toLowerCase() === value.toLowerCase())) {
+    showToast("Gericht existiert bereits", "error");
+    return;
+    }   
 
     // Wenn noch kein Plan existiert → jetzt erstellen
     if (!planId) {
@@ -1077,6 +1571,15 @@ window.startInlineEdit = function(spanElement, id, oldName) {
             return;
         }
 
+        if (foods.some(f => 
+            f.name.toLowerCase() === newName.toLowerCase() &&
+            f.id !== id
+        )) {
+            showToast("Gericht existiert bereits", "error");
+            cancel();
+            return;
+        }
+
         if (newName !== oldName) {
             await updateDoc(doc(db, "plans", planId, "foods", id), {
                 name: newName
@@ -1115,42 +1618,71 @@ window.startInlineEdit = function(spanElement, id, oldName) {
 // Zufallsgericht auswählen
 window.pickRandomFood = function() {
 
-    if (foods.length === 0) return; // Wenn leer → abbrechen
+    if (foods.length === 0) {
+    showToast("Keine Gerichte vorhanden", "error");
+    return;
+    }
 
-    const randomIndex = Math.floor(Math.random() * foods.length); // Zufälliger Index
-    document.getElementById("result").innerText = foods[randomIndex].name; // Anzeigen
+    let available = foods.filter(f => f.name !== lastRandom);
+    if (available.length === 0) available = foods;
+
+    const randomIndex = Math.floor(Math.random() * available.length);
+    lastRandom = available[randomIndex].name;
+    document.getElementById("result").innerText = available[randomIndex].name; // Anzeigen
 };
 
-window.assignRandom = async function(day, event) {
+window.assignRandom = async function(dateKey, event) {
+
+    if (!weekPlanRef) return;
 
     if (foods.length === 0) return;
-    // Button finden und Animation starten
+
     const button = event.target;
     button.classList.remove("spin");
     void button.offsetWidth;
     button.classList.add("spin");
 
-    // Bereits vergebene Gerichte sammeln
     const usedMeals = Object.values(weekPlan).filter(meal => meal !== null);
 
-    // Nur noch verfügbare Gerichte
     const availableMeals = foods.filter(food =>
         !usedMeals.includes(food.name)
     );
 
     if (availableMeals.length === 0) {
-        showToast("Keine Gerichte mehr verfügbar. Bitte neue Gerichte hinzufügen", "error");
+        showToast("Keine Gerichte mehr verfügbar", "error");
         return;
     }
 
     const randomIndex = Math.floor(Math.random() * availableMeals.length);
 
-    weekPlan[day] = availableMeals[randomIndex].name;
+    weekPlan[dateKey] = availableMeals[randomIndex].name;
 
-        await setDoc(weekPlanRef, weekPlan);
+    await updateDoc(weekPlanRef, {
+        [dateKey]: weekPlan[dateKey]
+    });
 
-        renderWeekPlan();
-        
+    // 🔥 Auch im Kalender speichern
+        await setDoc(
+        doc(calendarCollection, dateKey),
+        {
+            breakfast: null,
+            lunch: null,
+            dinner: weekPlan[dateKey],
+            createdAt: new Date()
+        }
+        );
+
+        if (activeCalendarDate in weekPlan) {
+
+            weekPlan[activeCalendarDate] = dinner || null;
+
+            await updateDoc(weekPlanRef, {
+                [activeCalendarDate]: dinner || null
+            });
+
+            // 🔥 UI sofort aktualisieren
+            renderWeekPlan();
+        }
 };
 
 // Plan teilen
@@ -1172,22 +1704,32 @@ window.closeShareModal = function() {
     document.getElementById("shareModal").style.display = "none";
 };
 
-window.resetWeekPlan = async function() {
+window.openResetModal = function() {
+    document.getElementById("resetModal").style.display = "flex";
+};
 
-    weekPlan = {
-        Montag: null,
-        Dienstag: null,
-        Mittwoch: null,
-        Donnerstag: null,
-        Freitag: null,
-        Samstag: null,
-        Sonntag: null
-    };
+window.closeResetModal = function() {
+    document.getElementById("resetModal").style.display = "none";
+};
 
+window.confirmResetWeek = async function() {
+
+    closeResetModal();
+
+    if (!weekPlanRef) return;
+
+    const oldWeek = { ...weekPlan };
+
+    weekPlan = generateCurrentWeek();
     await setDoc(weekPlanRef, weekPlan);
-    showToast("Woche zurückgesetzt ✔", "success");
 
-    renderWeekPlan();
+    for (const dateKey of Object.keys(oldWeek)) {
+        try {
+            await deleteDoc(doc(calendarCollection, dateKey));
+        } catch {}
+    }
+
+    showToast("Woche gelöscht ✔", "success");
 };
 
 window.switchTab = function(tabName) {
@@ -1200,14 +1742,20 @@ window.switchTab = function(tabName) {
         view.classList.remove("active");
     });
 
-    if (tabName === "meals") {
-        document.getElementById("mealsView").classList.add("active");
-        document.querySelectorAll(".tab")[0].classList.add("active");
-    }
+    document.getElementById(tabName + "View").classList.add("active");
 
-    if (tabName === "week") {
-        document.getElementById("weekView").classList.add("active");
-        document.querySelectorAll(".tab")[1].classList.add("active");
+    const tabs = document.querySelectorAll(".tab");
+    const map = {
+        meals: 0,
+        week: 1,
+        shopping: 2,
+        history: 3
+    };
+
+    tabs[map[tabName]].classList.add("active");
+
+    if (tabName === "history") {
+    renderCalendar();
     }
 };
 
@@ -1247,15 +1795,38 @@ document.getElementById("shareModal").addEventListener("click", function(e) {
     }
 });
 
-document.getElementById("searchInput").addEventListener("input", function(e) {
+document.getElementById("resetModal").addEventListener("click", function(e) {
+    if (e.target === this) {
+        closeResetModal();
+    }
+});
+
+const handleSearch = debounce(function(e) {
     searchTerm = e.target.value.toLowerCase();
     renderList();
-});
+}, 200);
+
+document
+    .getElementById("searchInput")
+    .addEventListener("input", handleSearch);
 
 document.getElementById("foodInput").addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
         e.preventDefault();   // verhindert unerwünschtes Verhalten
         addFood();            // ruft deine bestehende Funktion auf
+    }
+});
+
+document.getElementById("shoppingInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        addShoppingItem();
+    }
+});
+
+document.getElementById("calendarModal").addEventListener("click", function(e) {
+    if (e.target === this) {
+        closeCalendarModal();
     }
 });
 
@@ -1323,8 +1894,8 @@ function renderList() {
             };
 
             const deleteBtn = document.createElement("button");
-            deleteBtn.className = "remove-btn";
-            deleteBtn.innerText = "X";
+            deleteBtn.className = "clear-btn";
+            deleteBtn.innerText = "✕";
             deleteBtn.onclick = function() {
                 removeFood(food.id);
             };
@@ -1342,8 +1913,19 @@ function renderList() {
 
     });
 
-    container.appendChild(leftColumn);
-    container.appendChild(rightColumn);
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(leftColumn);
+    fragment.appendChild(rightColumn);
+    container.appendChild(fragment);
+
+    const datalist = document.getElementById("foodsDatalist");
+    datalist.innerHTML = "";
+
+    foods.forEach(food => {
+        const option = document.createElement("option");
+        option.value = food.name;
+        datalist.appendChild(option);
+    });
 }
 
 function renderWeekPlan() {
@@ -1351,34 +1933,72 @@ function renderWeekPlan() {
     const container = document.getElementById("weekPlan");
     container.innerHTML = "";
 
-    daysOrder.forEach(day => {
+    const entries = Object.entries(weekPlan)
+    .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
+    entries.forEach(([dateKey, meal]) => {
+
+        const date = new Date(dateKey);
+        const dayName = date.toLocaleDateString("de-DE", { weekday: "long" });
+        const formattedDate = date.toLocaleDateString("de-DE");
 
         const row = document.createElement("div");
-        row.className = weekPlan[day] ? "day-row filled" : "day-row";
+        row.className = meal ? "day-row filled" : "day-row";
 
         row.innerHTML = `
-        <div class="day-left">
-        <div class="day-name">${day}</div>
-        ${weekPlan[day] ? weekPlan[day] : "<span class='empty-meal'>Noch nichts geplant</span>"}
-        </div>
-        <button class="dice-btn" onclick="assignRandom('${day}', event)">🎲</button>
+            <div class="day-left">
+                <div class="day-name">
+                    ${dayName} – ${formattedDate}
+                </div>
+                <div class="day-meal"
+                    onclick="startWeekInlineEdit('${dateKey}', this)">
+                    ${meal
+                        ? meal
+                        : "<span class='empty-meal'>Noch nichts geplant</span>"}
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button class="dice-btn"
+                    onclick="assignRandom('${dateKey}', event)">🎲</button>
+                <button class="clear-btn"
+                    onclick="clearDay('${dateKey}')">✕</button>
+            </div>
         `;
 
         container.appendChild(row);
     });
+
     updateWeekCount();
 }
+
 async function loadWeekPlan() {
 
     const docSnap = await getDoc(weekPlanRef);
 
     if (docSnap.exists()) {
         weekPlan = docSnap.data();
+    } else {
+        weekPlan = generateCurrentWeek();
+        await setDoc(weekPlanRef, weekPlan);
     }
 
     renderWeekPlan();
+
+            // 🔥 Kalender-Daten in aktuelle Woche übernehmen
+        for (const dateKey of Object.keys(weekPlan)) {
+
+            const calendarSnap = await getDoc(doc(calendarCollection, dateKey));
+
+            if (calendarSnap.exists()) {
+                weekPlan[dateKey] = calendarSnap.data().dinner || null;
+            }
+        }
+
+        await setDoc(weekPlanRef, weekPlan);
 }
-loadWeekPlan();
+
+let toastTimeout = null;
 
 function showToast(message, type = "success") {
 
@@ -1387,9 +2007,26 @@ function showToast(message, type = "success") {
     toast.textContent = message;
     toast.className = "toast show " + type;
 
-    setTimeout(() => {
-        toast.classList.remove("show");
+    // Falls bereits ein Timer läuft → stoppen
+    if (toastTimeout) {
+        clearTimeout(toastTimeout);
+    }
+
+    toastTimeout = setTimeout(() => {
+        hideToast();
     }, 3000);
+}
+
+function hideToast() {
+
+    const toast = document.getElementById("toast");
+
+    toast.classList.remove("show");
+
+    if (toastTimeout) {
+        clearTimeout(toastTimeout);
+        toastTimeout = null;
+    }
 }
 
 function updateMealCount() {
@@ -1458,6 +2095,598 @@ toggleBtn.addEventListener("click", () => {
 
 // gespeichertes Theme laden
 applyTheme(localStorage.getItem("theme") || "light");
+
+async function checkWeekTransition() {
+
+    const settingsRef = doc(planDocRef, "meta", "settings");
+    const settingsSnap = await getDoc(settingsRef);
+
+    const now = new Date();
+    const currentWeek = getWeekKey(now);
+
+    let lastSavedWeek = null;
+
+    if (settingsSnap.exists()) {
+        lastSavedWeek = settingsSnap.data().lastWeek;
+    }
+
+    if (lastSavedWeek !== currentWeek) {
+
+        const hasMeals = Object.values(weekPlan).some(meal => meal !== null);
+
+        if (!hasMeals) {
+            await setDoc(settingsRef, { lastWeek: currentWeek });
+            return;
+        }
+        
+        // Aktuellen Plan archivieren
+        await addDoc(archiveCollection, {
+            week: lastSavedWeek || currentWeek,
+            data: weekPlan,
+            createdAt: new Date()
+        });
+
+        // 🔹 Einzelne Tage im Kalender speichern
+        for (const dateKey of Object.keys(weekPlan)) {
+
+            if (weekPlan[dateKey]) {
+
+                await setDoc(
+                    doc(calendarCollection, dateKey),
+                    {
+                    breakfast: null,
+                    lunch: null,
+                    dinner: weekPlan[dateKey],
+                    createdAt: new Date()
+                    }
+                );
+            }
+        }
+
+        // Woche zurücksetzen
+        weekPlan = generateCurrentWeek();
+
+        await setDoc(weekPlanRef, weekPlan);
+
+        // Neue Woche speichern
+        await setDoc(settingsRef, {
+            lastWeek: currentWeek
+        });
+
+        // Archiv auf 4 Wochen begrenzen
+        trimArchive();
+    }
+}
+
+function getWeekKey(date) {
+    const year = date.getFullYear();
+    const firstDay = new Date(date.getFullYear(), 0, 1);
+    const pastDays = Math.floor((date - firstDay) / 86400000);
+    const week = Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+    return year + "-W" + week;
+}
+
+function getDateOfWeek(dayName) {
+
+    const today = new Date();
+    const dayIndex = daysOrder.indexOf(dayName); // 0-6
+
+    // Montag als Wochenstart berechnen
+    const currentDay = today.getDay(); // 0=So, 1=Mo ...
+    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+
+    const targetDate = new Date(monday);
+    targetDate.setDate(monday.getDate() + dayIndex);
+
+    return formatLocalDate(targetDate); /* "YYYY-MM-DD" */
+}
+
+async function trimArchive() {
+
+    const snapshot = await getDocs(archiveCollection);
+
+    const docs = snapshot.docs
+        .sort((a,b) => 
+            (b.data().createdAt?.seconds || 0) - 
+            (a.data().createdAt?.seconds || 0)
+        );
+
+    if (docs.length > 4) {
+        for (let i = 4; i < docs.length; i++) {
+            await deleteDoc(docs[i].ref);
+        }
+    }
+}
+
+window.clearDay = async function(dateKey) {
+
+    if (!weekPlanRef) return;
+
+    weekPlan[dateKey] = null;
+
+    try {
+        await updateDoc(weekPlanRef, {
+            [dateKey]: null
+        });
+    } catch {
+        await setDoc(weekPlanRef, weekPlan);
+    }
+
+    // 🔥 Auch im Kalender löschen
+    try {
+        await deleteDoc(doc(calendarCollection, dateKey));
+    } catch {}
+
+    showToast("Gericht entfernt ✔", "success");
+};
+
+window.startWeekInlineEdit = function(dateKey, element) {
+
+    if (element.classList.contains("editing")) return;
+
+    element.classList.add("editing");
+
+    const oldValue = weekPlan[dateKey] || "";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = oldValue;
+    input.className = "inline-input";
+    input.setAttribute("list", "foodsDatalist");
+
+    element.innerHTML = "";
+    element.appendChild(input);
+
+    input.focus();
+    input.select();
+
+    async function save() {
+
+        const newValue = input.value.trim();
+
+        if (!newValue) {
+            weekPlan[dateKey] = null;
+            await updateDoc(weekPlanRef, { [dateKey]: null });
+            renderWeekPlan();
+            return;
+        }
+
+        const exists = foods.some(f =>
+            f.name.toLowerCase() === newValue.toLowerCase()
+        );
+
+        if (!exists) {
+            await addDoc(foodsCollection, { name: newValue });
+            showToast("Neues Gericht hinzugefügt ✔", "success");
+        }
+
+        weekPlan[dateKey] = newValue;
+
+        try {
+            await updateDoc(weekPlanRef, { [dateKey]: newValue });
+            await setDoc(
+            doc(calendarCollection, dateKey),
+            {
+                breakfast: null,
+                lunch: null,
+                dinner: newValue,
+                createdAt: new Date()
+            }
+        );
+        } catch {
+            await setDoc(weekPlanRef, weekPlan);
+        }
+
+        renderWeekPlan();
+    }
+
+    function cancel() {
+        renderWeekPlan();
+    }
+
+    let saved = false;
+
+    async function safeSave() {
+        if (saved) return;
+        saved = true;
+        await save();
+    }
+
+    input.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") await safeSave();
+        if (e.key === "Escape") cancel();
+    });
+
+    input.addEventListener("blur", safeSave);
+};
+
+window.addShoppingItem = async function() {
+
+    const input = document.getElementById("shoppingInput");
+    const value = input.value.trim();
+
+    if (!value) return;
+
+    if (shoppingItems.some(i =>
+    i.text.toLowerCase() === value.toLowerCase()
+    )) {
+        showToast("Artikel existiert bereits", "error");
+        return;
+    }
+
+    await addDoc(shoppingCollection, {
+        text: value,
+        checked: false,
+        createdAt: new Date()
+    });
+
+    input.value = "";
+    input.focus();
+    };
+
+window.toggleShoppingItem = async function(id, checked) {
+
+    await updateDoc(doc(db, "plans", planId, "shopping", id), {
+        checked: !checked
+    });
+};
+
+window.clearCompletedItems = async function() {
+
+    const completed = shoppingItems.filter(item => item.checked);
+
+    await Promise.all(
+    completed.map(item =>
+        deleteDoc(doc(db, "plans", planId, "shopping", item.id))
+    )
+    );
+};
+
+function renderShoppingList() {
+
+    const container = document.getElementById("shoppingList");
+    container.innerHTML = "";
+
+    if (shoppingItems.length === 0) {
+        container.innerHTML = "<p>Keine Artikel vorhanden</p>";
+        return;
+    }
+
+    const openItems = shoppingItems
+    .filter(i => !i.checked)
+    .sort((a,b) =>
+    a.text.toLowerCase().localeCompare(b.text.toLowerCase(), "de")
+    );
+
+    const completedItems = shoppingItems
+    .filter(i => i.checked)
+    .sort((a,b) =>
+    a.text.toLowerCase().localeCompare(b.text.toLowerCase(), "de")
+    );
+
+
+    // Offene Artikel
+    openItems.forEach(item => {
+        container.appendChild(createShoppingRow(item));
+    });
+
+    // Wenn es erledigte gibt → Überschrift einfügen
+    if (completedItems.length > 0) {
+
+        const divider = document.createElement("div");
+        divider.innerHTML = "<div class='section-title'>Erledigt</div>";
+        divider.style.marginTop = "20px";
+        container.appendChild(divider);
+
+        completedItems.forEach(item => {
+            container.appendChild(createShoppingRow(item));
+        });
+    }
+    }
+
+function createShoppingRow(item) {
+
+    const row = document.createElement("div");
+    row.className = "food-item shopping-item";
+
+    if (item.checked) {
+        row.classList.add("completed");
+    }
+
+    row.innerHTML = `
+    <input type="checkbox"
+        ${item.checked ? "checked" : ""}
+        id="checkbox-${item.id}"
+        style="margin-right:10px; width:18px; height:18px;"
+    >
+
+    <span class="shopping-text">${item.text}</span>
+
+    <button class="clear-btn"
+        onclick="deleteShoppingItem('${item.id}')">
+        ✕
+    </button>
+    `;
+
+    const checkbox = row.querySelector(`#checkbox-${item.id}`);
+    checkbox.addEventListener("change", () => {
+        toggleShoppingItem(item.id, item.checked);
+    });
+    return row;
+}
+
+let currentCalendarDate = new Date();
+let calendarMeals = {};
+
+window.changeMonth = function(offset) {
+
+    console.log("Monat gewechselt:", currentCalendarDate);
+
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+
+    currentCalendarDate = new Date(year, month + offset, 1);
+
+    renderCalendar();
+};
+
+window.deleteShoppingItem = async function(id) {
+
+    await deleteDoc(
+        doc(db, "plans", planId, "shopping", id)
+    );
+
+    showToast("Artikel entfernt ✔", "success");
+};
+
+async function loadCalendarMeals() {
+
+    const snapshot = await getDocs(calendarCollection);
+    calendarMeals = {};
+
+    snapshot.forEach(docItem => {
+        calendarMeals[docItem.id] = docItem.data();
+    });
+}
+
+async function renderCalendar() {
+
+    await loadCalendarMeals();
+
+    const grid = document.getElementById("calendarGrid");
+    const title = document.getElementById("calendarTitle");
+
+    grid.innerHTML = "";
+
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+
+    title.innerText =
+        currentCalendarDate.toLocaleString("de-DE", {
+            month: "long",
+            year: "numeric"
+        });
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    let startOffset = firstDay.getDay();
+    startOffset = startOffset === 0 ? 6 : startOffset - 1;
+
+    for (let i = 0; i < startOffset; i++) {
+        const emptyCell = document.createElement("div");
+        grid.appendChild(emptyCell);
+    }
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+
+        const date = new Date(year, month, day);
+        const dateKey = formatLocalDate(date);
+
+        const cell = document.createElement("div");
+        cell.className = "calendar-day";
+
+        cell.style.cursor = "pointer";
+
+        cell.addEventListener("click", () => {
+            openCalendarEdit(dateKey);
+        });
+
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "calendar-date";
+        dateLabel.innerText = day;
+
+        cell.appendChild(dateLabel);
+
+            // 🔥 Neuer Meals Container
+            const mealsWrapper = document.createElement("div");
+            mealsWrapper.className = "calendar-meals";
+
+            cell.appendChild(mealsWrapper);
+
+            if (calendarMeals[dateKey]) {
+
+                const data = calendarMeals[dateKey];
+
+                if (data.breakfast) {
+                    const breakfastDiv = document.createElement("div");
+                    breakfastDiv.className = "calendar-meal breakfast";
+                    breakfastDiv.innerHTML = `<span class="meal-text">🥐 ${data.breakfast}</span>`;
+                    mealsWrapper.appendChild(breakfastDiv);
+                }
+
+                if (data.lunch) {
+                    const lunchDiv = document.createElement("div");
+                    lunchDiv.className = "calendar-meal lunch";
+                    lunchDiv.innerHTML = `<span class="meal-text">🍝 ${data.lunch}</span>`;
+                    mealsWrapper.appendChild(lunchDiv);
+                }
+
+                if (data.dinner) {
+                    const dinnerDiv = document.createElement("div");
+                    dinnerDiv.className = "calendar-meal dinner";
+                    dinnerDiv.innerHTML = `<span class="meal-text">🍽 ${data.dinner}</span>`;
+                    mealsWrapper.appendChild(dinnerDiv);
+                }
+            }
+
+        grid.appendChild(cell);
+    }
+}
+
+let activeCalendarDate = null;
+
+window.openCalendarEdit = function(dateKey) {
+
+    activeCalendarDate = dateKey;
+
+    const data = calendarMeals[dateKey] || {};
+
+    document.getElementById("calendarBreakfastInput").value = data.breakfast || "";
+    document.getElementById("calendarLunchInput").value = data.lunch || "";
+    document.getElementById("calendarDinnerInput").value = data.dinner || "";
+
+    document.getElementById("calendarModal").style.display = "flex";
+};
+
+window.closeCalendarModal = function() {
+    document.getElementById("calendarModal").style.display = "none";
+};
+
+["calendarBreakfastInput",
+ "calendarLunchInput",
+ "calendarDinnerInput"].forEach(id => {
+
+    const input = document.getElementById(id);
+
+    if (!input) return;
+
+    input.addEventListener("keydown", async function(e) {
+
+        if (e.key === "Enter") {
+            e.preventDefault();
+            await saveCalendarMeal();
+        }
+
+        if (e.key === "Escape") {
+            closeCalendarModal();
+        }
+
+    });
+});
+
+window.saveCalendarMeal = async function() {
+
+    if (!activeCalendarDate) return;
+
+    const breakfast = document.getElementById("calendarBreakfastInput").value.trim();
+    const lunch = document.getElementById("calendarLunchInput").value.trim();
+    const dinner = document.getElementById("calendarDinnerInput").value.trim();
+
+    // 🔥 Wenn alles leer → löschen
+    if (!breakfast && !lunch && !dinner) {
+
+    await deleteDoc(doc(calendarCollection, activeCalendarDate));
+
+        if (activeCalendarDate in weekPlan) {
+            weekPlan[activeCalendarDate] = null;
+            await updateDoc(weekPlanRef, {
+                [activeCalendarDate]: null
+            });
+            renderWeekPlan();
+        }
+
+        closeCalendarModal();
+        renderCalendar();
+        showToast("Eintrag entfernt ✔", "success");
+        return;
+    }
+
+        if (activeCalendarDate in weekPlan) {
+
+        weekPlan[activeCalendarDate] = dinner || null;
+
+        await updateDoc(weekPlanRef, {
+            [activeCalendarDate]: dinner || null
+        });
+
+        // 🔥 UI sofort aktualisieren
+        renderWeekPlan();
+    }
+
+    // Optional: neue Gerichte automatisch zur Liste hinzufügen
+    const allMeals = [breakfast, lunch, dinner].filter(Boolean);
+
+    for (const meal of allMeals) {
+        const exists = foods.some(f =>
+            f.name.toLowerCase() === meal.toLowerCase()
+        );
+        if (!exists) {
+            await addDoc(foodsCollection, { name: meal });
+        }
+    }
+
+    await setDoc(
+        doc(calendarCollection, activeCalendarDate),
+        {
+            breakfast: breakfast || null,
+            lunch: lunch || null,
+            dinner: dinner || null,
+            createdAt: new Date()
+        }
+    );
+
+    closeCalendarModal();
+    renderCalendar();
+    showToast("Gespeichert ✔", "success");
+};
+
+window.deleteCalendarMeal = async function() {
+
+    if (!activeCalendarDate) return;
+
+    await deleteDoc(doc(calendarCollection, activeCalendarDate));
+
+    closeCalendarModal();
+    renderCalendar();
+    showToast("Gericht gelöscht ✔", "success");
+};
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key !== "Escape") return;
+
+    const calendarModal = document.getElementById("calendarModal");
+    const shareModal = document.getElementById("shareModal");
+    const resetModal = document.getElementById("resetModal");
+    const toast = document.getElementById("toast");
+
+    // 🔥 1️⃣ Offene Modals schließen
+    if (calendarModal.style.display === "flex") {
+        closeCalendarModal();
+        return;
+    }
+
+    if (shareModal.style.display === "flex") {
+        closeShareModal();
+        return;
+    }
+
+    if (resetModal.style.display === "flex") {
+        closeResetModal();
+        return;
+    }
+
+    // 🔥 2️⃣ Wenn kein Modal offen → Toast schließen
+    if (toast.classList.contains("show")) {
+        hideToast();
+    }
+
+});
+
 </script>
 
 </body>
