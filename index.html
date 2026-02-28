@@ -2009,14 +2009,13 @@ async function loadWeekPlan() {
 
     const docSnap = await getDoc(weekPlanRef);
 
-    if (docSnap.exists() && Object.keys(docSnap.data()).length > 0) {
-        weekPlan = docSnap.data();
-    } else {
-        weekPlan = generateCurrentWeek();
-        await setDoc(weekPlanRef, weekPlan);
+    if (!docSnap.exists()) {
+        const newWeek = generateCurrentWeek();
+        await setDoc(weekPlanRef, newWeek);
+        weekPlan = newWeek;
     }
 
-    renderWeekPlan();
+    // ❌ KEIN renderWeekPlan() hier!
 }
 
 
