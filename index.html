@@ -1710,18 +1710,6 @@ window.assignRandom = async function(dateKey, event) {
             createdAt: new Date()
         }
         );
-
-        if (activeCalendarDate in weekPlan) {
-
-            weekPlan[activeCalendarDate] = dinner || null;
-
-            await updateDoc(weekPlanRef, {
-                [activeCalendarDate]: dinner || null
-            });
-
-            // 🔥 UI sofort aktualisieren
-            renderWeekPlan();
-        }
 };
 
 // Plan teilen
