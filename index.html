@@ -812,6 +812,26 @@ body.dark .copy-btn {
     margin-bottom: 10px;
 }
 
+/* Inline Editing Style */
+.food-item.editing {
+    background: #e8f5ec;
+    border: 1px solid #00b44b;
+}
+
+body.dark .food-item.editing {
+    background: #1f2a22;
+}
+
+.inline-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: inherit;
+    width: 100%;
+}
+
 </style>
 </head>
 
@@ -914,7 +934,8 @@ import {
     doc,
     onSnapshot,
     setDoc,
-    getDoc
+    getDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 // Firebase Config (Verbindungsdaten zu deinem Projekt)
@@ -1027,6 +1048,68 @@ window.addFood = async function() {
 // Essen löschen
 window.removeFood = async function(id) {
     await deleteDoc(doc(db, "plans", planId, "foods", id));
+};
+
+window.startInlineEdit = function(spanElement, id, oldName) {
+
+    const foodItem = spanElement.closest(".food-item");
+
+    // Falls schon editing aktiv → abbrechen
+    if (foodItem.classList.contains("editing")) return;
+
+    foodItem.classList.add("editing");
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = oldName;
+    input.className = "inline-input";
+
+    spanElement.replaceWith(input);
+
+    input.focus();
+    input.select();
+
+    async function save() {
+        const newName = input.value.trim();
+
+        if (!newName) {
+            cancel();
+            return;
+        }
+
+        if (newName !== oldName) {
+            await updateDoc(doc(db, "plans", planId, "foods", id), {
+                name: newName
+            });
+            showToast("Gericht aktualisiert ✔", "success");
+        }
+
+        finish(newName);
+    }
+
+    function cancel() {
+        finish(oldName);
+    }
+
+    function finish(finalName) {
+        const newSpan = document.createElement("span");
+        newSpan.innerText = finalName;
+        newSpan.style.flex = "1";
+        newSpan.style.cursor = "pointer";
+        newSpan.onclick = function() {
+            startInlineEdit(newSpan, id, finalName);
+        };
+
+        input.replaceWith(newSpan);
+        foodItem.classList.remove("editing");
+    }
+
+    input.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") await save();
+        if (e.key === "Escape") cancel();
+    });
+
+    input.addEventListener("blur", save);
 };
 
 // Zufallsgericht auswählen
@@ -1230,10 +1313,24 @@ function renderList() {
 
             const item = document.createElement("div");
             item.className = "food-item";
-            item.innerHTML = `
-                ${food.name}
-                <button class="remove-btn" onclick="removeFood('${food.id}')">X</button>
-            `;
+            const nameSpan = document.createElement("span");
+            nameSpan.innerText = food.name;
+            nameSpan.style.flex = "1";
+            nameSpan.style.cursor = "pointer";
+
+            nameSpan.onclick = function() {
+                startInlineEdit(nameSpan, food.id, food.name);
+            };
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "remove-btn";
+            deleteBtn.innerText = "X";
+            deleteBtn.onclick = function() {
+                removeFood(food.id);
+            };
+
+            item.appendChild(nameSpan);
+            item.appendChild(deleteBtn);
             targetColumn.appendChild(item);
         });
 
