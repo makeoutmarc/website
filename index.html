@@ -43,14 +43,17 @@ body {
     justify-content: center;
     padding: 40px 20px;
     transition: background 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
 }
 
 /* Hauptcontainer */
 .container {
     background: var(--card);
     padding: 30px;  /* Innenabstand */
-    width: 1000px;  /* Feste Breite */
+    width: 100%;
+    max-width: 1000px;   /* Desktop-Begrenzung */
     border-radius: 12px;    /* Abgerundete Ecken */
+    margin: 0 auto;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);    /* Schatten */
 }
 
@@ -204,7 +207,6 @@ ul {
     align-items: center;
     break-inside: avoid;
     transition: all 0.2s ease;
-    min-height: 56px;   /* sorgt für saubere vertikale Mitte */
 }
 
 .food-item:hover {
@@ -263,8 +265,8 @@ ul {
 
 #foodList {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 Spalten mit gleicher Breite */
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
 }
 
 #weekPlan {
@@ -1005,6 +1007,7 @@ body.dark .history-meal {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 10px;
+    min-width: 700px;
 }
 
 .calendar-day {
@@ -1053,6 +1056,7 @@ body.dark .history-meal {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow-x: auto;
 }
 
 #calendarWeekdays {
@@ -1111,6 +1115,12 @@ body.dark .history-meal {
     display: flex;
     align-items: center;  /* 🔥 Text exakt mittig */
     font-size: 16px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
 }
 
 
