@@ -1503,10 +1503,7 @@ if (!planId) {
     window.history.replaceState(null, "", "?plan=" + planId);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await initializePlan(planId);
-    switchTab("week");
-});
+initializePlan(planId);
 
 let foods = []; // Lokales Array für alle Gerichte
 let weekPlan = {};
@@ -2004,8 +2001,21 @@ function renderWeekPlan() {
 
     updateWeekCount();
 }
-
 async function loadWeekPlan() {
+    const docSnap = await getDoc(weekPlanRef);
+
+    if (docSnap.exists()) {
+        weekPlan = docSnap.data();
+    } else {
+        // Optional: direkt speichern, damit Dokument existiert
+        await setDoc(weekPlanRef, weekPlan);
+    }
+
+    renderWeekPlan();
+}
+
+
+/*async function loadWeekPlan() {
 
     const docSnap = await getDoc(weekPlanRef);
 
@@ -2029,7 +2039,7 @@ async function loadWeekPlan() {
         }
 
         await setDoc(weekPlanRef, weekPlan);
-}
+}*/
 
 let toastTimeout = null;
 
