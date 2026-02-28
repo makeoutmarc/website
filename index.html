@@ -450,6 +450,9 @@ ul {
     gap: 4px;
     margin-bottom: 0px;
     border: 1px solid var(--border);
+    display: inline-flex;
+    white-space: nowrap;     /* 🔥 verhindert Umbruch */
+    min-width: max-content;  /* 🔥 sorgt dafür, dass Breite erhalten bleibt */
 }
 
 /* Wrapper um die Tabs, um den unteren Rand zu gestalten */
@@ -457,6 +460,8 @@ ul {
     border-bottom: 2px solid #000000;
     padding-bottom: 12px;
     margin-bottom: 18px;
+    overflow-x: auto;        /* 🔥 erlaubt horizontales Scrollen */
+    -webkit-overflow-scrolling: touch;  /* smooth iOS scroll */
 }
 
 .tab {
@@ -1121,6 +1126,11 @@ body.dark .history-meal {
     .container {
         padding: 20px;
     }
+}
+
+.tabs-wrapper {
+    overflow-x: auto;        /* 🔥 erlaubt horizontales Scrollen */
+    -webkit-overflow-scrolling: touch;  /* smooth iOS scroll */
 }
 
 
