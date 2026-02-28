@@ -1413,6 +1413,8 @@ const db = getFirestore(app); // Firestore Datenbank starten
 const urlParams = new URLSearchParams(window.location.search);
 let planId = urlParams.get("plan");
 
+console.log("Plan ID:", planId);
+
 // Referenzen werden später gesetzt
 let planDocRef = null;
 let foodsCollection = null;
