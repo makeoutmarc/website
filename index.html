@@ -1503,7 +1503,10 @@ if (!planId) {
     window.history.replaceState(null, "", "?plan=" + planId);
 }
 
-initializePlan(planId);
+document.addEventListener("DOMContentLoaded", async () => {
+    await initializePlan(planId);
+    switchTab("week");
+});
 
 let foods = []; // Lokales Array für alle Gerichte
 let weekPlan = {};
